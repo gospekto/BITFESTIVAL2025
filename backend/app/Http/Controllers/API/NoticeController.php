@@ -24,7 +24,6 @@ class NoticeController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        Log::info($request->all());
         $user = $request->user();
         $fields = $request->validate([
             'title' => 'required|string|max:255',
