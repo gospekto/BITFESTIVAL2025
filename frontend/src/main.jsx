@@ -11,7 +11,8 @@ import NoticeForm from "./components/NoticeForm";
 import "leaflet/dist/leaflet.css";
 import { AuthProvider } from "./context/AuthContext";
 import DashboardPage from "./pages/DashboardPage";
-import Processor_ from "postcss/lib/processor";
+import NoticesFeed from "./pages/NoticeFeed";
+import NoticeDetailsPage from "./pages/NoticeDetailsPage";
 
 const router = createBrowserRouter([
   {
@@ -22,6 +23,8 @@ const router = createBrowserRouter([
       { path: "login", element: <LoginScreen /> },
       { path: "test", element: <NoticeForm /> },
       { path: "dashboard", element: <DashboardPage /> },
+      { path: "feed", element: <NoticesFeed /> },
+      { path: "/notice/:id", element: <NoticeDetailsPage /> }
       {path: "profile", element: <ProfilePage />},
     ],
   },
