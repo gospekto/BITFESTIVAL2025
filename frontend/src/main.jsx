@@ -10,6 +10,7 @@ import HomePage from "./pages/HomePage";
 import NoticeForm from "./components/NoticeForm";
 import "leaflet/dist/leaflet.css";
 import { AuthProvider } from "./context/AuthContext";
+import DashboardPage from "./pages/DashboardPage";
 
 const router = createBrowserRouter([
   {
@@ -19,6 +20,7 @@ const router = createBrowserRouter([
       { path: "", element: <HomePage /> },
       { path: "login", element: <LoginScreen /> },
       { path: "test", element: <NoticeForm /> },
+      { path: "dashboard", element: <DashboardPage /> },
     ],
   },
 ]);

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FiMail, FiLock, FiUser } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export default function AuthForm() {
   const { login, register } = useAuth();
@@ -15,6 +16,7 @@ export default function AuthForm() {
   const [apiSuccess, setApiSuccess] = useState("");
 
   const isLogin = mode === "login";
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,6 +30,7 @@ export default function AuthForm() {
       if (isLogin) {
         res = await login(email, password);
         setApiSuccess(`Zalogowano jako ${res.email}`);
+        navigate("/dashboard");
       } else {
         // przekazujemy wszystkie pola do rejestracji
         res = await register({
