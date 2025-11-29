@@ -10,16 +10,10 @@ class Notice extends Model
 {
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'title',
         'category',
         'date',
-        'time',
         'description',
         'location',
         'image_path',
@@ -27,34 +21,15 @@ class Notice extends Model
         'max_people',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
-            'date' => 'date',
-            'time' => 'datetime:H:i',
-            'max_people' => 'integer',
-            'organization_id' => 'integer',
+            'date' => 'date:Y-m-d H:i:s',
         ];
     }
 
-    /**
-     * Organization that owns the notice.
-     */
     public function organization()
     {
         return $this->belongsTo(Organization::class);
-    }
-
-    /**
-     * Users registered for the notice.
-     */
-    public function registeredUsers()
-    {
-        return $this->belongsToMany(User::class, 'notice_user');
     }
 }

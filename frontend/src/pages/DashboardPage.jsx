@@ -9,64 +9,31 @@ import {
   FiTarget,
   FiHeart
 } from "react-icons/fi"
+import { useState, useRef, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+
 
 export default function DashboardPage() {
+  const [openMenu, setOpenMenu] = useState(false);
+  const menuRef = useRef();
+  const navigate = useNavigate();
+  const { logout, user } = useAuth();
+
+  // zamykanie menu po kliknięciu poza nim
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setOpenMenu(false);
+      }
+    };
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, []);
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
-      {/* Górny pasek po zalogowaniu */}
-      <header className="border-b border-slate-200/70 dark:border-slate-800/80 bg-white/80 dark:bg-slate-950/80 backdrop-blur">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
-          {/* Logo + nazwa */}
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-2xl bg-gradient-to-tr from-accentBlue via-accentGreen to-accentOrange flex items-center justify-center text-white font-semibold text-base">
-              H
-            </div>
-            <div className="flex flex-col">
-              <span className="font-semibold text-slate-900 dark:text-white">
-                Helpi
-              </span>
-              <span className="text-[11px] uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                Panel użytkownika
-              </span>
-            </div>
-          </div>
-
-          {/* Wyszukiwarka na górze */}
-          <div className="hidden md:flex flex-1 max-w-md items-center gap-2">
-            <div className="flex items-center w-full rounded-full border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 px-3 py-1.5 text-xs text-slate-500 dark:text-slate-400">
-              <FiSearch className="mr-2 text-slate-400 dark:text-slate-500" />
-              <input
-                type="text"
-                placeholder="Szukaj akcji, ogłoszeń, organizacji..."
-                className="flex-1 bg-transparent outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500"
-              />
-            </div>
-          </div>
-
-          {/* Akcje użytkownika */}
-          <div className="flex items-center gap-3">
-            <button className="relative inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-900 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:border-accentBlue/60 transition">
-              <FiBell className="text-sm" />
-              <span className="absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full bg-accentOrange" />
-            </button>
-
-            <button className="flex items-center gap-2 rounded-full bg-slate-100/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 text-[11px]">
-              <div className="h-6 w-6 rounded-full bg-accentBlue/20 text-[11px] flex items-center justify-center text-accentBlue font-semibold">
-                JK
-              </div>
-              <div className="hidden sm:flex flex-col items-start">
-                <span className="text-[11px] font-medium text-slate-800 dark:text-slate-100">
-                  Cześć, Jakub
-                </span>
-                <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                  konto wolontariusza
-                </span>
-              </div>
-            </button>
-          </div>
-        </div>
-      </header>
-
+      
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Pierwszy rząd - radar + lista akcji */}
         <div className="grid lg:grid-cols-[1.2fr,0.9fr] gap-6 mb-8">
@@ -233,9 +200,12 @@ export default function DashboardPage() {
                 <span>Najczęściej pomagane obszary: <strong>seniorzy, porządki</strong></span>
               </li>
             </ul>
-            <button className="mt-3 w-full inline-flex items-center justify-center rounded-2xl bg-slate-900 text-slate-50 dark:bg-slate-50 dark:text-slate-950 text-[11px] font-medium px-3 py-1.5 hover:bg-slate-800 dark:hover:bg-slate-200 transition">
-              Przejdź do profilu
-            </button>
+         <button
+            onClick={() => navigate("/profile")}
+            className="mt-3 w-full inline-flex items-center justify-center rounded-2xl bg-slate-900 text-slate-50 dark:bg-slate-50 dark:text-slate-950 text-[11px] font-medium px-3 py-1.5 hover:bg-slate-800 dark:hover:bg-slate-200 transition"
+          >
+          Przejdź do profilu
+        </button>
           </section>
 
           <section className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm p-4">

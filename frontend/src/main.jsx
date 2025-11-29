@@ -2,8 +2,8 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
-
 import LoginScreen from "./pages/LoginScreen";
+import ProfilePage from "./pages/ProfilePage";
 
 import "./index.css";
 import HomePage from "./pages/HomePage";
@@ -25,6 +25,7 @@ const router = createBrowserRouter([
       { path: "dashboard", element: <DashboardPage /> },
       { path: "feed", element: <NoticesFeed /> },
       { path: "/notice/:id", element: <NoticeDetailsPage /> }
+      {path: "profile", element: <ProfilePage />},
     ],
   },
 ]);
