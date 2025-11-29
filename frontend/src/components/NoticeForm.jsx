@@ -7,11 +7,11 @@ import {
   FiUsers,
   FiImage,
   FiAlignLeft,
-  FiCheckCircle,
   FiX,
 } from "react-icons/fi";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
+import axios from '../axios';
 
 const markerIcon = new L.Icon({
   iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
@@ -22,36 +22,49 @@ const markerIcon = new L.Icon({
   iconAnchor: [12, 41],
 });
 
-function fakeCreateNotice(notice) {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      if (!notice.title.trim()) {
-        reject(new Error("Tytuł ogłoszenia jest wymagany."));
-      } else if (!notice.category.trim()) {
-        reject(new Error("Wybierz kategorię ogłoszenia."));
-      } else if (!notice.date) {
-        reject(new Error("Podaj datę wydarzenia."));
-      } else if (!notice.isOnline && !notice.locationCoords) {
-        reject(
-          new Error("Wybierz lokalizację na mapie lub zaznacz wydarzenie online.")
-        );
-      } else if (!notice.description.trim()) {
-        reject(new Error("Dodaj krótki opis ogłoszenia."));
-      } else {
-        resolve({
-          status: "ok",
-          notice,
-        });
-      }
-    }, 1100);
-  });
+
+async function createNotice(notice) {
+  try {
+    const formData = new FormData();
+
+    formData.append("title", notice.title);
+    formData.append("category", notice.category);
+    formData.append("date", notice.date);
+    formData.append("description", notice.description);
+    formData.append("location", notice.location);
+    if (notice.max_people !== null && notice.max_people !== undefined) {
+      formData.append("max_people", String(notice.max_people));
+    }
+
+    if (notice.imageFile) {
+      formData.append("image", notice.imageFile);
+    }
+
+    const res = await axios.post("/notices", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    return {
+      status: "ok",
+      notice: res.data,
+    };
+  } catch (error) {
+    if (error.response && error.response.status === 422) {
+      const errors = error.response.data.errors || {};
+      const messages = Object.values(errors).flat();
+      throw new Error(messages[0] || "Wystąpił błąd walidacji formularza.");
+    }
+
+    console.error("Błąd zapisu ogłoszenia:", error);
+    throw new Error("Nie udało się dodać ogłoszenia. Spróbuj ponownie później.");
+  }
 }
 
-// Komponent do obsługi kliknięć w mapę
-function LocationPicker({ isOnline, onSelect }) {
+function LocationPicker({ onSelect }) {
   useMapEvents({
     click(e) {
-      if (isOnline) return;
       onSelect({
         lat: Number(e.latlng.lat.toFixed(6)),
         lng: Number(e.latlng.lng.toFixed(6)),
@@ -65,12 +78,12 @@ export default function NoticeForm({ onNoticeCreated }) {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [date, setDate] = useState("");
-  const [isOnline, setIsOnline] = useState(false);
-  const [peopleNeeded, setPeopleNeeded] = useState("");
   const [description, setDescription] = useState("");
 
   const [locationCoords, setLocationCoords] = useState(null);
   const [isMapReady, setIsMapReady] = useState(false);
+
+  const [maxPeople, setMaxPeople] = useState("");
 
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
@@ -105,36 +118,40 @@ export default function NoticeForm({ onNoticeCreated }) {
     setApiSuccess("");
     setIsSubmitting(true);
 
-    const notice = {
+    const locationValue = locationCoords
+      ? `${locationCoords.lat},${locationCoords.lng}`
+      : "";
+
+    const noticePayload = {
       title,
       category,
       date,
-      isOnline,
-      locationCoords: isOnline ? null : locationCoords,
-      peopleNeeded: peopleNeeded ? Number(peopleNeeded) : null,
-      imageFileName: imageFile?.name || null,
       description,
+      location: locationValue,
+      imageFile: imageFile|| null,
+      max_people: maxPeople ? Number(maxPeople) : null,
     };
 
     try {
-      const res = await fakeCreateNotice(notice);
+      const res = await createNotice(noticePayload);
       setApiSuccess("Ogłoszenie zostało dodane.");
 
       onNoticeCreated && onNoticeCreated(res.notice);
 
+      // reset
       setTitle("");
       setCategory("");
       setDate("");
-      setIsOnline(false);
-      setPeopleNeeded("");
+      setDescription("");
       setLocationCoords(null);
+      setMaxPeople("");
       setImageFile(null);
       if (imagePreview) URL.revokeObjectURL(imagePreview);
       setImagePreview("");
-      setDescription("");
-      setIsMapReady(false);
     } catch (err) {
-      setApiError(err.message || "Coś poszło nie tak przy dodawaniu ogłoszenia.");
+      setApiError(
+        err.message || "Coś poszło nie tak przy dodawaniu ogłoszenia."
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -226,8 +243,8 @@ export default function NoticeForm({ onNoticeCreated }) {
                 <option value="">Wybierz kategorię</option>
                 <option value="event">Wydarzenie / event</option>
                 <option value="fundraising">Zbiórka / fundraising</option>
-                <option value="education">Edukacja / warsztaty</option>
-                <option value="support">Wsparcie indywidualne</option>
+                <option value="workshop">Edukacja / warsztaty</option>
+                <option value="individual_support">Wsparcie indywidualne</option>
                 <option value="other">Inne</option>
               </select>
             </div>
@@ -262,22 +279,12 @@ export default function NoticeForm({ onNoticeCreated }) {
           <div className="flex items-center justify-between gap-2">
             <label className="text-xs font-medium text-slate-600 dark:text-slate-300 flex items-center gap-2">
               <FiMapPin className="text-slate-400" />
-              Lokalizacja na mapie
-            </label>
-            <label className="inline-flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400">
-              <input
-                type="checkbox"
-                className="rounded border-slate-300 dark:border-slate-600 text-accentBlue focus:ring-accentBlue/70"
-                checked={isOnline}
-                onChange={(e) => setIsOnline(e.target.checked)}
-                disabled={isSubmitting}
-              />
-              <span>Wydarzenie online</span>
+              Lokalizacja na mapie (wymagana)
             </label>
           </div>
 
           <div className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
-            {!isMapReady && !isOnline && (
+            {!isMapReady && (
               <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900">
                 <div className="h-6 w-6 rounded-full border-2 border-accentBlue border-t-transparent animate-spin mb-2" />
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">
@@ -286,36 +293,29 @@ export default function NoticeForm({ onNoticeCreated }) {
               </div>
             )}
 
-            <div className={isOnline ? "opacity-60 pointer-events-none" : ""}>
-              <MapContainer
-                center={[52.23, 21.01]}
-                zoom={6}
-                scrollWheelZoom={!isOnline}
-                className="h-64 w-full"
-                whenReady={() => setIsMapReady(true)}
-              >
-                <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            <MapContainer
+              center={[52.23, 21.01]}
+              zoom={6}
+              scrollWheelZoom={true}
+              className="h-64 w-full"
+              whenReady={() => setIsMapReady(true)}
+            >
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              <LocationPicker onSelect={(coords) => setLocationCoords(coords)} />
+              {locationCoords && (
+                <Marker
+                  position={[locationCoords.lat, locationCoords.lng]}
+                  icon={markerIcon}
                 />
-                <LocationPicker
-                  isOnline={isOnline}
-                  onSelect={(coords) => setLocationCoords(coords)}
-                />
-                {locationCoords && !isOnline && (
-                  <Marker
-                    position={[locationCoords.lat, locationCoords.lng]}
-                    icon={markerIcon}
-                  />
-                )}
-              </MapContainer>
-            </div>
+              )}
+            </MapContainer>
 
             <div className="absolute bottom-0 inset-x-0 bg-white/80 dark:bg-slate-900/85 border-t border-slate-200/70 dark:border-slate-800/80 px-3 py-2 flex items-center justify-between gap-3 text-[11px] text-slate-600 dark:text-slate-300">
               <div className="flex flex-col">
-                {isOnline ? (
-                  <span>Tryb online – mapa wyłączona.</span>
-                ) : locationCoords ? (
+                {locationCoords ? (
                   <>
                     <span className="font-medium">Lokalizacja wybrana na mapie</span>
                     <span className="text-[10px] text-slate-500 dark:text-slate-400">
@@ -323,7 +323,10 @@ export default function NoticeForm({ onNoticeCreated }) {
                     </span>
                   </>
                 ) : (
-                  <span>Kliknij w mapę, aby ustawić przybliżoną lokalizację wydarzenia.</span>
+                  <span>
+                    Kliknij w mapę, aby ustawić lokalizację wydarzenia (wymagane
+                    do zapisania ogłoszenia).
+                  </span>
                 )}
               </div>
             </div>
@@ -332,7 +335,7 @@ export default function NoticeForm({ onNoticeCreated }) {
           <div className="grid sm:grid-cols-[0.9fr,1.1fr] gap-4">
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
-                Liczba potrzebnych wolontariuszy
+                Maksymalna liczba wolontariuszy
               </label>
               <div
                 className="flex items-center gap-2 rounded-2xl 
@@ -351,21 +354,18 @@ export default function NoticeForm({ onNoticeCreated }) {
                              placeholder:text-slate-400 
                              text-slate-900"
                   placeholder="Np. 10"
-                  value={peopleNeeded}
-                  onChange={(e) => setPeopleNeeded(e.target.value)}
+                  value={maxPeople}
+                  onChange={(e) => setMaxPeople(e.target.value)}
                   disabled={isSubmitting}
                 />
               </div>
-              <p className="text-[11px] text-slate-400">
-                Jeśli nie wiesz – możesz zostawić puste.
-              </p>
             </div>
           </div>
         </div>
 
         <div className="space-y-1.5">
           <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
-            Obrazek / grafika wydarzenia (plik, opcjonalnie)
+            Obrazek / grafika wydarzenia (opcjonalnie)
           </label>
           <div
             className="flex flex-col sm:flex-row sm:items-center gap-3 rounded-2xl 
@@ -381,7 +381,8 @@ export default function NoticeForm({ onNoticeCreated }) {
               <div className="flex flex-col">
                 <span className="text-xs text-slate-700">Dodaj plik graficzny</span>
                 <span className="text-[11px] text-slate-400">
-                  JPG, PNG – max kilka MB (symulacja, brak realnego uploadu).
+                  Nazwa pliku zostanie wysłana jako{" "}
+                  <code>image_path</code>
                 </span>
               </div>
             </div>
