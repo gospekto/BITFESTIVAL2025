@@ -138,38 +138,25 @@ export default function AuthForm() {
               </div>
             </div>
 
+          </>
+
+        )}
+        
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Powtórz hasło</label>
-              <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 focus-within:border-accentGreen/70 focus-within:bg-white transition">
-                <FiLock className="text-slate-400 text-sm" />
+              <label className="text-xs font-medium text-slate-600 dark:text-slate-300">E-mail</label>
+              <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 focus-within:border-accentBlue/70 focus-within:bg-white transition">
+                <FiMail className="text-slate-400 text-sm" />
                 <input
-                  type="password"
-                  placeholder="Powtórz hasło"
-                  value={passwordConfirmation}
-                  onChange={(e) => setPasswordConfirmation(e.target.value)}
+                  type="email"
+                  placeholder="ty@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   disabled={isSubmitting}
                   className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900"
                 />
               </div>
             </div>
-          </>
-        )}
-
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium text-slate-600 dark:text-slate-300">E-mail</label>
-          <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 focus-within:border-accentBlue/70 focus-within:bg-white transition">
-            <FiMail className="text-slate-400 text-sm" />
-            <input
-              type="email"
-              placeholder="ty@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={isSubmitting}
-              className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900"
-            />
-          </div>
-        </div>
-
+        
         <div className="space-y-1.5">
           <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Hasło</label>
           <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 focus-within:border-accentGreen/70 focus-within:bg-white transition">
@@ -184,6 +171,23 @@ export default function AuthForm() {
             />
           </div>
         </div>
+
+        {!isLogin && (
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Powtórz hasło</label>
+            <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 focus-within:border-accentGreen/70 focus-within:bg-white transition">
+              <FiLock className="text-slate-400 text-sm" />
+              <input
+                type="password"
+                placeholder="Powtórz hasło"
+                value={passwordConfirmation}
+                onChange={(e) => setPasswordConfirmation(e.target.value)}
+                disabled={isSubmitting}
+                className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900"
+              />
+            </div>
+          </div>
+        )}
 
         <button
           type="submit"
