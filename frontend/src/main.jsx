@@ -7,6 +7,8 @@ import LoginScreen from "./pages/LoginScreen";
 
 import "./index.css";
 import HomePage from "./pages/HomePage";
+import NoticeForm from "./components/NoticeForm";
+import "leaflet/dist/leaflet.css";
 import { AuthProvider } from "./context/AuthContext";
 
 const router = createBrowserRouter([
@@ -16,6 +18,7 @@ const router = createBrowserRouter([
     children: [
       { path: "", element: <HomePage /> },
       { path: "login", element: <LoginScreen /> },
+      { path: "test", element: <NoticeForm /> },
     ],
   },
 ]);
