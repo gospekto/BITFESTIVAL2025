@@ -56,4 +56,11 @@ class VolunteerNoticeController extends Controller
 
         return response()->json(['message' => 'Pomyślnie opuszczono ogłoszenie.']);
     }
+
+    public function show(Request $request, Notice $notice): JsonResponse
+    {
+        return response()->json([
+            'notice' => new NoticeResource($notice),
+        ]);
+    }
 }
