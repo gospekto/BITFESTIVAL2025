@@ -12,6 +12,8 @@ export default function AuthForm() {
   useEffect(() => {
     if (searchParams.get("mode") === "register") {
       setMode("register");
+    } else {
+      setMode("login");
     }
   }, [searchParams]);
 
