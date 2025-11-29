@@ -82,7 +82,7 @@ class AuthController extends Controller
         $fields = $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'surname' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|string|email|unique:users,email,' . $user->id,
+            'email' => 'sometimes|required|string|email|unique:users,email,'.$user->id,
             'password' => 'nullable|string|confirmed|min:6',
             'organization_name' => 'required_if:is_organizer,true|string|max:255',
             'area_of_activity' => 'required_if:is_organizer,true|string|max:255',

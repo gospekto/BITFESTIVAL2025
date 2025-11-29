@@ -53,6 +53,11 @@ class User extends Authenticatable
         ];
     }
 
+    public function notices()
+    {
+        return $this->belongsToMany(Notice::class, 'notice_user');
+    }
+
     public function organizations()
     {
         return $this->belongsToMany(Organization::class, 'organization_user');

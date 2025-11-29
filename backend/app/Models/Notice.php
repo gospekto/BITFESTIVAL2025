@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
+use App\Enums\Category;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 
 class Notice extends Model
 {
-    use HasFactory, Notifiable;
+    use HasFactory, HasUuids, Notifiable;
 
     protected $fillable = [
         'title',
@@ -25,11 +27,17 @@ class Notice extends Model
     {
         return [
             'date' => 'date:Y-m-d H:i:s',
+            'category' => Category::class,
         ];
     }
 
     public function organization()
     {
         return $this->belongsTo(Organization::class);
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class);
     }
 }

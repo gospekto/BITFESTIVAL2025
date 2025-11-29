@@ -2,77 +2,109 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Enums\Category;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\NoticeResource;
 use App\Models\Notice;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class NoticeController extends Controller
 {
-    public function index()
+    public function index(Request $request): JsonResponse
     {
-        return Notice::with('organization', 'registeredUsers')->get();
+        $user = $request->user();
+        $notices = Notice::where('organization_id', $user->organizations()->first()->id)->get();
+
+        return response()->json([
+            'notices' => NoticeResource::collection($notices),
+        ]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
-        $request->validate([
-            'title' => 'required|string',
-            'category' => 'required|string',
+        $user = $request->user();
+        $fields = $request->validate([
+            'title' => 'required|string|max:255',
+            'category' => ['required', 'string', function ($attribute, $value, $fail) {
+                if (! in_array($value, array_column(Category::cases(), 'value'))) {
+                    $fail('Niepoprawna kategoria.');
+                }
+            }],
             'date' => 'required|date',
-            'time' => 'required',
             'description' => 'required|string',
-            'location' => 'required|string',
-            'image_path' => 'nullable|string',
-            'organization_id' => 'required|exists:organizations,id',
+            'location' => 'required|string|max:255',
+            'image' => 'nullable|image|max:2048',
             'max_people' => 'required|integer|min:1',
         ]);
 
+        if ($request->hasFile('image')) {
+            $fields['image_path'] = $request->file('image')->store('notices', 'public');
+        }
+
         $notice = Notice::create([
-            'title' => $request->title,
-            'category' => $request->category,
-            'date' => $request->date,
-            'time' => $request->time,
-            'description' => $request->description,
-            'location' => $request->location,
-            'image_path' => $request->image_path,
-            'organization_id' => $request->organization_id,
-            'max_people' => $request->max_people,
+            'title' => $fields['title'],
+            'category' => $fields['category'],
+            'date' => $fields['date'],
+            'description' => $fields['description'],
+            'location' => $fields['location'],
+            'image_path' => $fields['image_path'] ?? null,
+            'organization_id' => $user->organizations()->first()->id,
+            'max_people' => $fields['max_people'],
         ]);
 
-        return response()->json($notice, 201);
+        return response()->json([
+            'message' => 'Pomyślnie utworzono ogłoszenie.',
+            'notice' => new NoticeResource($notice),
+        ]);
     }
 
-    public function show($id)
+    public function update(Request $request, Notice $notice): JsonResponse
     {
-        return Notice::with('organization', 'registeredUsers')->findOrFail($id);
-    }
+        $user = $request->user();
 
-    public function update(Request $request, $id)
-    {
-        $notice = Notice::findOrFail($id);
+        if ($notice->organization_id !== $user->organizations()->first()->id) {
+            return response()->json(['message' => 'Brak uprawnień do edycji tego ogłoszenia.'], 403);
+        }
 
-        $request->validate([
-            'title' => 'sometimes|required|string',
-            'category' => 'sometimes|required|string',
+        $fields = $request->validate([
+            'title' => 'sometimes|required|string|max:255',
+            'category' => ['sometimes', 'required', 'string', function ($attribute, $value, $fail) {
+                if (! in_array($value, array_column(Category::cases(), 'value'))) {
+                    $fail('Niepoprawna kategoria.');
+                }
+            }],
             'date' => 'sometimes|required|date',
-            'time' => 'sometimes|required',
             'description' => 'sometimes|required|string',
-            'location' => 'sometimes|required|string',
-            'image_path' => 'sometimes|nullable|string',
-            'organization_id' => 'sometimes|required|exists:organizations,id',
+            'location' => 'sometimes|required|string|max:255',
+            'image' => 'nullable|image|max:2048',
             'max_people' => 'sometimes|required|integer|min:1',
         ]);
 
-        $notice->fill($request->all());
-        $notice->save();
+        if ($request->hasFile('image')) {
+            $fields['image_path'] = $request->file('image')->store('notices', 'public');
+        }
 
-        return response()->json($notice);
+        $notice->update($fields);
+
+        return response()->json([
+            'message' => 'Ogłoszenie zostało zaktualizowane.',
+            'notice' => new NoticeResource($notice),
+        ]);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, Notice $notice): JsonResponse
     {
-        Notice::findOrFail($id)->delete();
+        $user = $request->user();
 
-        return response()->json(null, 204);
+        if ($notice->organization_id !== $user->organizations()->first()->id) {
+            return response()->json(['message' => 'Brak uprawnień do usunięcia tego ogłoszenia.'], 403);
+        }
+
+        $notice->delete();
+
+        return response()->json([
+            'message' => 'Ogłoszenie zostało usunięte.',
+        ]);
     }
 }
