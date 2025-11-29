@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->uuid('tokenable_id');
             $table->string('tokenable_type');
-
             $table->text('name');
             $table->string('token', 64)->unique();
             $table->text('abilities')->nullable();
