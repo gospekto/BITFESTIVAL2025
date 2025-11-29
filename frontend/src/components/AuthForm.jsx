@@ -29,6 +29,9 @@ export default function AuthForm() {
   const [areaOfActivity, setAreaOfActivity] = useState("");
   const [contactEmail, setContactEmail] = useState("");
   const [address, setAddress] = useState("");
+  const [latitude, setLatitude] = useState("");
+  const [longitude, setLongitude] = useState("");
+
   const [logo, setLogo] = useState(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -37,6 +40,7 @@ export default function AuthForm() {
 
   const isLogin = mode === "login";
   const navigate = useNavigate();
+
 
   const handleLogoChange = (e) => {
     const file = e.target.files?.[0];
@@ -55,7 +59,7 @@ export default function AuthForm() {
     setLogo(file);
   };
 
-  const handleSubmit = async (e) => {
+    const handleSubmit = async (e) => {
     e.preventDefault();
     setApiError("");
     setApiSuccess("");
@@ -66,12 +70,17 @@ export default function AuthForm() {
         return;
       }
 
+      if (!address) {
+        setApiError("Adres jest wymagany.");
+        return;
+      }
+
       const isOrganizer = role === "organization";
 
       if (isOrganizer) {
-        if (!organizationName || !areaOfActivity || !contactEmail || !address) {
+        if (!organizationName || !areaOfActivity || !contactEmail) {
           setApiError(
-            "Nazwa organizacji, obszar działalności, email kontaktowy i adres są wymagane dla konta organizacji."
+            "Nazwa organizacji, obszar działalności i email kontaktowy są wymagane dla konta organizacji."
           );
           return;
         }
@@ -93,8 +102,47 @@ export default function AuthForm() {
         setApiSuccess(`Zalogowano jako ${res.email}`);
         navigate("/dashboard");
       } else {
-
         const isOrganizer = role === "organization";
+
+        // lokalne zmienne na współrzędne
+        let lat = latitude;
+        let lng = longitude;
+
+        // jeśli jeszcze nie mamy współrzędnych, pobierz je z /search-places
+        if (!lat || !lng) {
+          try {
+                const resp = await fetch(
+                  `https://hackathon.drokgames.pl/api/search-places?search=${encodeURIComponent(
+                    address
+                  )}`
+                );
+            const data = await resp.json();
+
+            const first = data && data.length > 0 ? data[0] : null;
+
+            if (!first || !first.latitude || !first.longitude) {
+              setApiError(
+                "Nie udało się odnaleźć współrzędnych dla podanego adresu. Spróbuj doprecyzować adres."
+              );
+              setIsSubmitting(false);
+              return;
+            }
+
+            lat = first.latitude;
+            lng = first.longitude;
+
+            // opcjonalnie zapis do stanu, żeby mieć spójność
+            setLatitude(lat);
+            setLongitude(lng);
+          } catch (err) {
+            console.error("Błąd podczas pobierania współrzędnych", err);
+            setApiError(
+              "Wystąpił błąd podczas pobierania współrzędnych adresu."
+            );
+            setIsSubmitting(false);
+            return;
+          }
+        }
 
         const formData = new FormData();
         formData.append("name", name);
@@ -102,18 +150,26 @@ export default function AuthForm() {
         formData.append("email", email);
         formData.append("password", password);
         formData.append("password_confirmation", passwordConfirmation);
-
         formData.append("is_organizer", isOrganizer ? "1" : "0");
+
+        // wspólne pola adresowe
+        formData.append("address", address);
+        formData.append("latitude", lat);
+        formData.append("longitude", lng);
 
         if (isOrganizer) {
           formData.append("organization_name", organizationName);
           formData.append("area_of_activity", areaOfActivity);
           formData.append("contact_email", contactEmail);
-          formData.append("address", address);
           if (logo) {
             formData.append("logo", logo);
           }
         }
+        console.log("Dane wysyłane do backendu:", {
+          address,
+          latitude: lat,
+          longitude: lng
+        });
         res = await register(formData);
         setApiSuccess(`Konto utworzone dla ${res.email}`);
         navigate(isOrganizer ? "/organization-dashboard" : "/dashboard");
@@ -130,6 +186,8 @@ export default function AuthForm() {
         setAreaOfActivity("");
         setContactEmail("");
         setAddress("");
+        setLatitude("");
+        setLongitude("");
         setLogo(null);
       }
     } catch (err) {
@@ -139,7 +197,7 @@ export default function AuthForm() {
     } finally {
       setIsSubmitting(false);
     }
-  };
+};
 
   return (
     <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-2xl shadow-soft border border-slate-200 dark:border-slate-800 p-6 sm:p-8 transition-colors">
