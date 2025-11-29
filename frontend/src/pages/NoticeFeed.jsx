@@ -1,64 +1,68 @@
+import { useEffect, useState } from "react";
 import NoticeCard from "../components/NoticeCard";
 import { Link } from "react-router-dom";
 import { FiArrowLeft } from "react-icons/fi";
+import api from "../axios";
+import { useNavigate } from "react-router-dom";
 
 export default function NoticesFeed() {
-  const mockData = [
-    {
-      id: 1,
-      title: "Pomoc przy wydawaniu żywności",
-      category: "Humanitarian",
-      date: "2025-03-12",
-      time: "17:00",
-      location: "Warszawa, ul. Dobra 15",
-      image_path: "https://images.unsplash.com/photo-1526256262350-7da7584cf5eb",
-      max_people: 20,
-      registered_users_count: 12,
-      organization: {
-        name: "Fundacja Serce Miasta",
-      },
-    },
-    {
-      id: 2,
-      title: "Sprzątanie lasu Kabackiego",
-      category: "Environment",
-      date: "2025-03-20",
-      time: "10:00",
-      location: "Las Kabacki, Parking Pólko",
-      image_path: null,
-      max_people: 50,
-      registered_users_count: 44,
-      organization: {
-        name: "EcoVolunteers",
-      },
-    },
-    {
-      id: 3,
-      title: "Warsztaty dla dzieci z Ukrainy",
-      category: "Education",
-      date: "2025-03-18",
-      time: "15:30",
-      location: "Kraków, ul. Karmelicka 20",
-      image_path: "https://images.unsplash.com/photo-1600880292089-90a7e086ee0c",
-      max_people: 12,
-      registered_users_count: 12,
-      organization: {
-        name: "Stowarzyszenie Wsparcie Razem",
-      },
-    },
-  ];
+  const [notices, setNotices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchNotices = async () => {
+      try {
+        setLoading(true);
+
+        const res = await api.get("/all-notices");
+        setNotices(res.data?.notices || []);
+
+      } catch (err) {
+        setError(
+          err.response?.data?.message ||
+          "Nie udało się pobrać ogłoszeń."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNotices();
+  }, []);
 
   return (
     <div className="max-w-2xl mx-auto space-y-4 py-12">
-      <Link
-        to="/dashboard"
+      <button
+        onClick={() => navigate(-1)}
         className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
       >
         <FiArrowLeft className="text-xs" />
         Wróć
-      </Link>
+      </button>
+
       <h1 className="text-center w-full text-2xl font-bold">Ogłoszenia</h1>
-      {mockData.map((notice) => (
+
+      {/* LOADING */}
+      {loading && (
+        <p className="text-center text-slate-500">Ładowanie ogłoszeń...</p>
+      )}
+
+      {/* ERROR */}
+      {error && (
+        <div className="text-center text-red-500 text-sm">{error}</div>
+      )}
+
+      {/* EMPTY */}
+      {!loading && notices.length === 0 && (
+        <p className="text-center text-slate-400 text-sm">
+          Brak dostępnych ogłoszeń.
+        </p>
+      )}
+
+      {/* LISTA OGŁOSZEŃ */}
+      {notices.map((notice) => (
         <NoticeCard key={notice.id} notice={notice} />
       ))}
     </div>

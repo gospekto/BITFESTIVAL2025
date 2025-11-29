@@ -7,6 +7,7 @@ import {
   FiHeart,
   FiArrowRight,
 } from "react-icons/fi";
+import { useEffect } from "react";
 
 export default function NoticeCard({ notice, className = "" }) {
   const {
@@ -16,7 +17,7 @@ export default function NoticeCard({ notice, className = "" }) {
     date,
     time,
     location,
-    image_path,
+    image_url,
     organization,
     max_people,
     registered_users_count = 0,
@@ -39,6 +40,15 @@ export default function NoticeCard({ notice, className = "" }) {
       })
     : null;
 
+    const CATEGORY_LABELS_PL = {
+      event: "Wydarzenie / event",
+      fundraising: "Zbiórka",
+      workshop: "Edukacja / warsztaty",
+      individual_support: "Wsparcie indywidualne",
+      other: "Inne",
+    };
+
+
   const orgInitial =
     organization?.name?.[0]?.toUpperCase() || title?.[0]?.toUpperCase() || "H";
 
@@ -50,10 +60,10 @@ export default function NoticeCard({ notice, className = "" }) {
       }
     >
       <div className="flex-shrink-0">
-        {image_path ? (
+        {image_url ? (
           <div className="h-20 w-24 sm:h-24 sm:w-32 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800">
             <img
-              src={image_path}
+              src={"https://hackathon.drokgames.pl"+image_url}
               alt={title}
               className="h-full w-full object-cover"
             />
@@ -78,7 +88,7 @@ export default function NoticeCard({ notice, className = "" }) {
 
           {category && (
             <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] uppercase tracking-wide bg-accentBlue/10 text-accentBlue whitespace-nowrap">
-              {category}
+              {CATEGORY_LABELS_PL[category]}
             </span>
           )}
         </div>
