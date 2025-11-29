@@ -1,24 +1,6 @@
-// AuthContext.jsx
 import { createContext, useContext, useEffect, useState } from "react";
-import axios from "axios";
+import api from "../axios"; // importujemy instancję Axios z retry i tokenem
 
-// ------- AXIOS GLOBAL CONFIG -------
-axios.defaults.baseURL = "http://localhost:8000";
-axios.defaults.withCredentials = true;
-
-// Optional: automatyczne pobieranie CSRF przed zapytaniami mutującymi
-axios.interceptors.request.use(async (config) => {
-  const methodsRequiringCsrf = ["post", "put", "patch", "delete"];
-
-  if (methodsRequiringCsrf.includes(config.method)) {
-    await axios.get("/sanctum/csrf-cookie");
-  }
-
-  return config;
-});
-
-
-// ------- AUTH CONTEXT -------
 const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
@@ -27,14 +9,14 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-
-  // ---- Przywracanie sesji przy starcie aplikacji ----
+  // ---- inicjalizacja usera przy starcie aplikacji ----
   const init = async () => {
     try {
-      const { data } = await axios.get("/api/user");
-      setUser(data);
+      const res = await api.get("/user"); // endpoint chroniony tokenem
+      setUser(res.data);
     } catch (err) {
-      setUser(null); // nie zalogowany
+      console.log("Brak aktywnego użytkownika lub token wygasł");
+      setUser(null);
     } finally {
       setLoading(false);
     }
@@ -44,56 +26,59 @@ export const AuthProvider = ({ children }) => {
     init();
   }, []);
 
-
-  // ---- LOGOWANIE ----
+  // ---- logowanie ----
   const login = async (email, password) => {
-    await axios.get("/sanctum/csrf-cookie");
+    try {
+      const res = await api.post("/login", { email, password });
+      const { token, user } = res.data;
+      console.log(res.data);
 
-    await axios.post("/login", {
-      email,
-      password,
-    });
+      // zapis tokena w localStorage
+      localStorage.setItem("access_token", token);
+      setUser(user);
 
-    // Pobierz usera po zalogowaniu
-    const { data } = await axios.get("/api/user");
-    setUser(data);
-
-    return data;
+      return user;
+    } catch (err) {
+      throw err;
+    }
   };
 
-
-  // ---- REJESTRACJA ----
+  // ---- rejestracja ----
   const register = async (payload) => {
-    await axios.get("/sanctum/csrf-cookie");
+    try {
+      const res = await api.post("/register", payload);
+      const { token, user } = res.data;
 
-    await axios.post("/register", payload);
+      localStorage.setItem("access_token", token);
+      setUser(user);
 
-    const { data } = await axios.get("/api/user");
-    setUser(data);
-
-    return data;
+      return user;
+    } catch (err) {
+      throw err;
+    }
   };
 
-
-  // ---- WYLOGOWANIE ----
+  // ---- wylogowanie ----
   const logout = async () => {
-    await axios.post("/logout");
-    setUser(null);
+    try {
+      await api.post("/logout"); // jeśli backend wymaga wylogowania
+    } catch (err) {
+      console.log("Błąd podczas logout");
+    } finally {
+      localStorage.removeItem("access_token");
+      setUser(null);
+    }
   };
-
 
   const value = {
     user,
     loading,
     login,
-    logout,
     register,
+    logout,
     isLoggedIn: !!user,
+    api, // eksportujemy instancję Axios
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {!loading && children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
 };

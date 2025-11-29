@@ -114,9 +114,6 @@ export default function HomePage() {
                 >
                   Dołącz jako wolontariusz
                 </Link>
-                <p className="text-[11px] text-slate-400 dark:text-slate-500">
-                  ⏱ Pierwsze ogłoszenie dodasz w mniej niż 3 minuty.
-                </p>
               </div>
             </div>
 
