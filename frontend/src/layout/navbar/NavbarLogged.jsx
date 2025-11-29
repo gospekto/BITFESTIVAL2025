@@ -84,10 +84,10 @@ export default function NavbarLogged() {
                 <button onClick={() => navigate("/profile")} className="w-full px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800">
                   Profil
                 </button>
-
+{/* 
                 <button onClick={() => navigate("/organization-panel")} className="w-full px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800">
                   Panel organizacji
-                </button>
+                </button> */}
 
                 <button
                   onClick={handleLogout}
