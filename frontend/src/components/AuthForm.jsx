@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { FiMail, FiLock, FiUser } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +7,14 @@ import { useNavigate } from "react-router-dom";
 export default function AuthForm() {
   const { login, register } = useAuth();
   const [mode, setMode] = useState("login");
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get("mode") === "register") {
+      setMode("register");
+    }
+  }, [searchParams]);
+  
   const [name, setName] = useState("");
   const [surname, setSurname] = useState(""); // nowa zmienna
   const [email, setEmail] = useState("");
