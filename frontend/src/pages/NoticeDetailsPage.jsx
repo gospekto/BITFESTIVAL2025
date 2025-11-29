@@ -11,6 +11,16 @@ import PaymentModal from "../components/PaymentModal";
 import { useEffect, useState } from "react";
 import axios from "../axios";
 
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import L from "leaflet";
+
+const markerIcon = L.icon({
+  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
+
 export default function NoticeDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -26,7 +36,6 @@ export default function NoticeDetailsPage() {
       try {
         setLoading(true);
         const res = await axios.get(`/notices/${id}`);
-        console.log(res.data);
         setNotice(res.data.notice);
       } catch (err) {
         setError("Nie udało się pobrać ogłoszenia.");
@@ -37,7 +46,13 @@ export default function NoticeDetailsPage() {
     fetchNotice();
   }, [id]);
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center">Ładowanie ogłoszenia...</div>;
+  if (loading)
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Ładowanie ogłoszenia...
+      </div>
+    );
+
   if (error)
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
@@ -47,6 +62,7 @@ export default function NoticeDetailsPage() {
         <p>{error}</p>
       </div>
     );
+
   if (!notice)
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
@@ -56,6 +72,11 @@ export default function NoticeDetailsPage() {
         <p>Ogłoszenie nie zostało znalezione.</p>
       </div>
     );
+
+  // ---- MAPA – parsowanie "50.050085,19.160156"
+  const [lat, lng] = notice.location
+    ? notice.location.split(",").map((v) => parseFloat(v.trim()))
+    : [null, null];
 
   const formattedDate = notice.date
     ? new Date(notice.date).toLocaleDateString("pl-PL", {
@@ -67,12 +88,10 @@ export default function NoticeDetailsPage() {
 
   const spotsLeft =
     typeof notice.max_people === "number"
-      ? Math.max(notice.max_people - notice.registered_users_count, 0)
-      : null;
-
-  const capacityPercent =
-    typeof notice.max_people === "number" && notice.max_people > 0
-      ? Math.min((notice.registered_users_count / notice.max_people) * 100, 100)
+      ? Math.max(
+          notice.max_people - (notice.registered_users_count ?? 0),
+          0
+        )
       : null;
 
   return (
@@ -85,6 +104,7 @@ export default function NoticeDetailsPage() {
           >
             <FiArrowLeft className="text-xs" /> Wróć
           </button>
+
           {notice.category && (
             <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] uppercase tracking-wide bg-accentBlue/10 text-accentBlue">
               {notice.category}
@@ -104,10 +124,10 @@ export default function NoticeDetailsPage() {
           )}
 
           <div className="p-5 sm:p-7">
-            {/* Tytuł i organizacja */}
+            {/* Tytuł + organizacja */}
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
               <div>
-                <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 dark:text-white mb-1">
+                <h1 className="text-xl sm:text-2xl font-semibold mb-1">
                   {notice.title}
                 </h1>
                 <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
@@ -134,7 +154,7 @@ export default function NoticeDetailsPage() {
               )}
             </div>
 
-            {/* Data, godzina, lokalizacja */}
+            {/* Data + godzina + lokalizacja */}
             <div className="grid sm:grid-cols-3 gap-3 mb-5 text-xs text-slate-600 dark:text-slate-300">
               <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/70 border p-3 flex items-start gap-2">
                 <FiCalendar className="mt-[2px] text-accentBlue" />
@@ -142,9 +162,10 @@ export default function NoticeDetailsPage() {
                   <p className="text-[11px] text-slate-500 dark:text-slate-400">
                     Data
                   </p>
-                  <p className="font-medium">{formattedDate || "Do ustalenia"}</p>
+                  <p className="font-medium">{formattedDate}</p>
                 </div>
               </div>
+
               <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/70 border p-3 flex items-start gap-2">
                 <FiClock className="mt-[2px] text-accentGreen" />
                 <div>
@@ -154,6 +175,7 @@ export default function NoticeDetailsPage() {
                   <p className="font-medium">{notice.time || "Do ustalenia"}</p>
                 </div>
               </div>
+
               <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/70 border p-3 flex items-start gap-2">
                 <FiMapPin className="mt-[2px] text-accentOrange" />
                 <div>
@@ -165,28 +187,41 @@ export default function NoticeDetailsPage() {
               </div>
             </div>
 
-            {/* Opis i organizacja */}
+            {/* MAPA */}
+            {lat && lng && (
+              <div className="rounded-2xl overflow-hidden mb-6 border border-slate-200 dark:border-slate-700">
+                <MapContainer
+                  center={[lat, lng]}
+                  zoom={14}
+                  scrollWheelZoom={false}
+                  style={{ height: "300px", width: "100%" }}
+                >
+                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                  <Marker position={[lat, lng]} icon={markerIcon}>
+                    <Popup>{notice.title}</Popup>
+                  </Marker>
+                </MapContainer>
+              </div>
+            )}
+
+            {/* Opis */}
             <div className="mb-6">
-              <h2 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">
-                Opis ogłoszenia
-              </h2>
-              <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+              <h2 className="text-sm font-semibold mb-2">Opis ogłoszenia</h2>
+              <p className="text-sm leading-relaxed">
                 {notice.description}
               </p>
             </div>
 
+            {/* Organizacja */}
             {notice.organization && (
               <div className="rounded-2xl bg-slate-50 dark:bg-slate-900/60 border p-4 flex gap-3 items-start">
                 <div className="h-9 w-9 rounded-2xl bg-gradient-to-tr from-accentBlue via-accentGreen to-accentOrange flex items-center justify-center text-white text-sm font-semibold">
                   {notice.organization.name?.[0]}
                 </div>
                 <div>
-                  <p className="text-xs font-semibold">{notice.organization.name}</p>
-                  {notice.organization.description && (
-                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-                      {notice.organization.description}
-                    </p>
-                  )}
+                  <p className="text-xs font-semibold">
+                    {notice.organization.name}
+                  </p>
                 </div>
               </div>
             )}

@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [UserController::class, 'user']);
+    Route::put('/user', [UserController::class, 'update']);
 
     Route::middleware('role:organizer')->group(function () {
         Route::get('/notices', [NoticeController::class, 'index']);
@@ -32,6 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::middleware('role:admin')->group(function () {
         Route::get('/admin-notices', [AdminNoticesController::class, 'index']);
+        Route::delete('/admin/notices/{notice}', [AdminNoticesController::class, 'destroy']);
         Route::get('/organizations', [AdminOrganizationController::class, 'index']);
         Route::post('/organization/{organization}/verify', [AdminOrganizationController::class, 'verifyOrganization']);
     });
