@@ -17,6 +17,7 @@ class AuthController extends Controller
             'surname' => 'required|string|max:255',
             'email' => 'required|string|email|unique:users,email',
             'password' => 'required|string|confirmed|min:6',
+            'is_organizer' => 'required|boolean',
         ]);
 
         $user = User::create([
@@ -25,6 +26,12 @@ class AuthController extends Controller
             'email' => $fields['email'],
             'password' => Hash::make($fields['password']),
         ]);
+
+        if ($fields['is_organizer']) {
+            $user->assignRole('organizer');
+        } else {
+            $user->assignRole('volunteer');
+        }
 
         $token = $user->createToken('api_token')->plainTextToken;
 

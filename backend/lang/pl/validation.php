@@ -145,5 +145,6 @@ return [
         'surname' => 'nazwisko',
         'email' => 'adres email',
         'password' => 'hasło',
+        'is_organizer' => 'typ konta',
     ],
 ];
