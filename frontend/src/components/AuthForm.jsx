@@ -32,6 +32,11 @@ export default function AuthForm() {
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
 
+  const [placeResults, setPlaceResults] = useState([]);
+  const [isSearchingPlaces, setIsSearchingPlaces] = useState(false);
+
+  // baza API, bez końcowego /
+  const API_BASE_URL = "https://hackathon.drokgames.pl/api";
   const [logo, setLogo] = useState(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,7 +46,48 @@ export default function AuthForm() {
   const isLogin = mode === "login";
   const navigate = useNavigate();
 
+  const handleAddressChange = async (e) => {
+  const value = e.target.value;
+  setAddress(value);
+  setLatitude("");
+  setLongitude("");
+  setPlaceResults([]);
 
+  if (!value || value.length < 3) return;
+
+  try {
+    setIsSearchingPlaces(true);
+    const url = `${API_BASE_URL}/search-places?search=${encodeURIComponent(
+      value
+    )}`;
+    console.log("Autocomplete URL:", url);
+
+    const resp = await fetch(url);
+
+    if (!resp.ok) {
+      console.error("Błąd odpowiedzi z search-places:", resp.status);
+      setIsSearchingPlaces(false);
+      return;
+    }
+
+    const data = await resp.json();
+    console.log("Autocomplete wyniki:", data);
+
+    setPlaceResults(Array.isArray(data) ? data : []);
+  } catch (error) {
+    console.error("Błąd podczas pobierania miejsc", error);
+  } finally {
+    setIsSearchingPlaces(false);
+  }
+};
+
+const handleSelectPlace = (place) => {
+  if (!place) return;
+  setAddress(place.address || place.name || "");
+  setLatitude(place.latitude || "");
+  setLongitude(place.longitude || "");
+  setPlaceResults([]);
+};
   const handleLogoChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) {
@@ -165,11 +211,13 @@ export default function AuthForm() {
             formData.append("logo", logo);
           }
         }
-        console.log("Dane wysyłane do backendu:", {
-          address,
-          latitude: lat,
-          longitude: lng
-        });
+        // // 
+        // console.log("Dane wysyłane do backendu:", {
+        //   address,
+        //   latitude: lat,
+        //   longitude: lng
+        // });
+        // // 
         res = await register(formData);
         setApiSuccess(`Konto utworzone dla ${res.email}`);
         navigate(isOrganizer ? "/organization-dashboard" : "/dashboard");
@@ -346,23 +394,6 @@ export default function AuthForm() {
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
-                    Adres
-                  </label>
-                  <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 focus-within:border-accentBlue/70 focus-within:bg-white transition">
-                    <FiUser className="text-slate-400 text-sm" />
-                    <input
-                      type="text"
-                      placeholder="Ulica, miasto"
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                      disabled={isSubmitting}
-                     className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-black"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
                     Logo organizacji
                   </label>
                   <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 flex items-center justify-between gap-2">
@@ -416,6 +447,57 @@ export default function AuthForm() {
             </div>
           </>
         )}
+
+        
+        {!isLogin && role && (
+                        <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                    Adres
+                  </label>
+                  <div className="flex flex-col rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 focus-within:border-accentBlue/70 focus-within:bg-white transition">
+                    <div className="flex items-center gap-2">
+                      <FiUser className="text-slate-400 text-sm" />
+                      <input
+                        type="text"
+                        placeholder="Ulica, miasto"
+                        value={address}
+                        onChange={handleAddressChange}
+                        disabled={isSubmitting}
+                        className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-black"
+                      />
+                    </div>
+
+                    {isSearchingPlaces && (
+                      <p className="mt-1 text-[10px] text-slate-500">
+                        Szukam miejsc...
+                      </p>
+                    )}
+
+                    {placeResults.length > 0 && (
+                      <div className="mt-2 max-h-40 overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-soft text-xs">
+                        {placeResults.map((place, index) => (
+                          <button
+                            key={index}
+                            type="button"
+                            onClick={() => handleSelectPlace(place)}
+                            className="w-full text-left px-3 py-2 hover:bg-slate-100"
+                          >
+                            <div className="font-medium text-slate-700">
+                              {place.name}
+                            </div>
+                            <div className="text-[10px] text-slate-500">
+                              {place.address}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                    Wybierz adres z listy, wtedy współrzędne zapiszą się automatycznie.
+                  </p>
+                </div>
+              )}
 
         <div className="space-y-1.5">
           <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
