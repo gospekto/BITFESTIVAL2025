@@ -9,8 +9,11 @@ import {
   FiTarget,
   FiHeart
 } from "react-icons/fi"
+import { useNavigate } from "react-router-dom"
+
 
 export default function DashboardPage() {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
       {/* Górny pasek po zalogowaniu */}
@@ -50,7 +53,10 @@ export default function DashboardPage() {
               <span className="absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full bg-accentOrange" />
             </button>
 
-            <button className="flex items-center gap-2 rounded-full bg-slate-100/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 text-[11px]">
+            <button
+              onClick={() => navigate("/profile")}
+              className="flex items-center gap-2 rounded-full bg-slate-100/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 text-[11px] hover:bg-slate-200 dark:hover:bg-slate-800 transition"
+            >
               <div className="h-6 w-6 rounded-full bg-accentBlue/20 text-[11px] flex items-center justify-center text-accentBlue font-semibold">
                 JK
               </div>
@@ -233,9 +239,12 @@ export default function DashboardPage() {
                 <span>Najczęściej pomagane obszary: <strong>seniorzy, porządki</strong></span>
               </li>
             </ul>
-            <button className="mt-3 w-full inline-flex items-center justify-center rounded-2xl bg-slate-900 text-slate-50 dark:bg-slate-50 dark:text-slate-950 text-[11px] font-medium px-3 py-1.5 hover:bg-slate-800 dark:hover:bg-slate-200 transition">
-              Przejdź do profilu
-            </button>
+         <button
+            onClick={() => navigate("/profile")}
+            className="mt-3 w-full inline-flex items-center justify-center rounded-2xl bg-slate-900 text-slate-50 dark:bg-slate-50 dark:text-slate-950 text-[11px] font-medium px-3 py-1.5 hover:bg-slate-800 dark:hover:bg-slate-200 transition"
+          >
+          Przejdź do profilu
+        </button>
           </section>
 
           <section className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm p-4">
