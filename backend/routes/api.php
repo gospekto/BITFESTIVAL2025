@@ -12,7 +12,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [UserController::class, 'user']);
 
     Route::middleware('role:organizer')->group(function () {
-        Route::get('/my-notices', [NoticeController::class, 'index']);
+        Route::get('/notices', [NoticeController::class, 'index']);
         Route::post('/notices', [NoticeController::class, 'store']);
         Route::put('/notices/{notice}', [NoticeController::class, 'update']);
         Route::delete('/notices/{notice}', [NoticeController::class, 'destroy']);
