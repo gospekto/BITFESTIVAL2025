@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
+use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,13 +14,28 @@ class AuthController extends Controller
 {
     public function register(Request $request): JsonResponse
     {
-        $fields = $request->validate([
-            'name' => 'required|string|max:255',
-            'surname' => 'required|string|max:255',
-            'email' => 'required|string|email|unique:users,email',
-            'password' => 'required|string|confirmed|min:6',
-            'is_organizer' => 'required|boolean',
-        ]);
+        $isOrganizer = filter_var($request->input('is_organizer'), FILTER_VALIDATE_BOOLEAN);
+
+        $fields = $request->validate(
+            [
+                'name' => 'required|string|max:255',
+                'surname' => 'required|string|max:255',
+                'email' => 'required|string|email|unique:users,email',
+                'password' => 'required|string|confirmed|min:6',
+                'is_organizer' => 'required|boolean',
+                'organization_name' => 'required_if:is_organizer,true|string|max:255',
+                'area_of_activity' => 'required_if:is_organizer,true|string|max:255',
+                'contact_email' => 'required_if:is_organizer,true|email|max:255',
+                'address' => 'required_if:is_organizer,true|string|max:255',
+                'logo' => 'nullable|image|max:2048',
+            ],
+            [
+                'organization_name.required_if' => 'Pole nazwa organizacji jest wymagane gdy konto jest organizacją.',
+                'area_of_activity.required_if' => 'Pole obszar działalności jest wymagane gdy konto jest organizacją.',
+                'contact_email.required_if' => 'Pole email kontaktowy jest wymagane gdy konto jest organizacją.',
+                'address.required_if' => 'Pole adres jest wymagane gdy konto jest organizacją.',
+            ]
+        );
 
         $user = User::create([
             'name' => $fields['name'],
@@ -27,7 +44,21 @@ class AuthController extends Controller
             'password' => Hash::make($fields['password']),
         ]);
 
-        if ($fields['is_organizer']) {
+        if ($isOrganizer) {
+            $logoPath = null;
+            if ($request->hasFile('logo')) {
+                $logoPath = $request->file('logo')->store('logos', 'public');
+            }
+
+            $organization = Organization::create([
+                'name' => $fields['organization_name'],
+                'area_of_activity' => $fields['area_of_activity'],
+                'contact_email' => $fields['contact_email'],
+                'address' => $fields['address'],
+                'logo_url' => $logoPath,
+            ]);
+            $uuid = $organization->id;
+            $user->organizations()->attach($uuid);
             $user->assignRole('organizer');
         } else {
             $user->assignRole('volunteer');
@@ -36,8 +67,53 @@ class AuthController extends Controller
         $token = $user->createToken('api_token')->plainTextToken;
 
         return response()->json([
-            'user' => $user,
+            'user' => new UserResource($user),
             'token' => $token,
+        ]);
+    }
+
+    public function update(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $isOrganizer = $user->hasRole('organizer');
+
+        $fields = $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'surname' => 'sometimes|required|string|max:255',
+            'email' => 'sometimes|required|string|email|unique:users,email,'.$user->id,
+            'password' => 'nullable|string|confirmed|min:6',
+            'organization_name' => 'required_if:is_organizer,true|string|max:255',
+            'area_of_activity' => 'required_if:is_organizer,true|string|max:255',
+            'contact_email' => 'required_if:is_organizer,true|email|max:255',
+            'address' => 'required_if:is_organizer,true|string|max:255',
+            'logo' => 'nullable|image|max:2048',
+        ], [
+            'organization_name.required_if' => 'Pole nazwa organizacji jest wymagane gdy konto jest organizacją.',
+            'area_of_activity.required_if' => 'Pole obszar działalności jest wymagane gdy konto jest organizacją.',
+            'contact_email.required_if' => 'Pole email kontaktowy jest wymagane gdy konto jest organizacją.',
+            'address.required_if' => 'Pole adres jest wymagane gdy konto jest organizacją.',
+        ]);
+
+        $user->update([
+            'name' => $fields['name'] ?? $user->name,
+            'surname' => $fields['surname'] ?? $user->surname,
+            'email' => $fields['email'] ?? $user->email,
+            'password' => isset($fields['password']) ? Hash::make($fields['password']) : $user->password,
+        ]);
+
+        if ($isOrganizer) {
+            $logoPath = $request->hasFile('logo') ? $request->file('logo')->store('logos', 'public') : null;
+            $organization = $user->organizations()->first();
+            if ($organization) {
+                $organization->update(array_merge(
+                    $fields,
+                    $logoPath ? ['logo_url' => $logoPath] : []
+                ));
+            }
+        }
+
+        return response()->json([
+            'user' => new UserResource($user),
         ]);
     }
 

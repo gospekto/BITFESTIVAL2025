@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 
@@ -16,19 +15,19 @@ class RoleSeeder extends Seeder
         Role::updateOrCreate([
             'name' => 'admin',
         ], [
-            'guard_name' => 'sanctum'
+            'guard_name' => 'sanctum',
         ]);
 
         Role::updateOrCreate([
             'name' => 'volunteer',
         ], [
-            'guard_name' => 'sanctum'
+            'guard_name' => 'sanctum',
         ]);
 
         Role::updateOrCreate([
             'name' => 'organizer',
         ], [
-            'guard_name' => 'sanctum'
+            'guard_name' => 'sanctum',
         ]);
     }
 }
