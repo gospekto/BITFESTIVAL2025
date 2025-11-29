@@ -1,0 +1,485 @@
+import { useState } from "react";
+import {
+  FiType,
+  FiTag,
+  FiCalendar,
+  FiMapPin,
+  FiUsers,
+  FiImage,
+  FiAlignLeft,
+  FiCheckCircle,
+  FiX,
+} from "react-icons/fi";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import L from "leaflet";
+
+const markerIcon = new L.Icon({
+  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  iconRetinaUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
+
+function fakeCreateNotice(notice) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (!notice.title.trim()) {
+        reject(new Error("Tytuł ogłoszenia jest wymagany."));
+      } else if (!notice.category.trim()) {
+        reject(new Error("Wybierz kategorię ogłoszenia."));
+      } else if (!notice.date) {
+        reject(new Error("Podaj datę wydarzenia."));
+      } else if (!notice.isOnline && !notice.locationCoords) {
+        reject(
+          new Error("Wybierz lokalizację na mapie lub zaznacz wydarzenie online.")
+        );
+      } else if (!notice.description.trim()) {
+        reject(new Error("Dodaj krótki opis ogłoszenia."));
+      } else {
+        resolve({
+          status: "ok",
+          notice,
+        });
+      }
+    }, 1100);
+  });
+}
+
+// Komponent do obsługi kliknięć w mapę
+function LocationPicker({ isOnline, onSelect }) {
+  useMapEvents({
+    click(e) {
+      if (isOnline) return;
+      onSelect({
+        lat: Number(e.latlng.lat.toFixed(6)),
+        lng: Number(e.latlng.lng.toFixed(6)),
+      });
+    },
+  });
+  return null;
+}
+
+export default function NoticeForm({ onNoticeCreated }) {
+  const [title, setTitle] = useState("");
+  const [category, setCategory] = useState("");
+  const [date, setDate] = useState("");
+  const [isOnline, setIsOnline] = useState(false);
+  const [peopleNeeded, setPeopleNeeded] = useState("");
+  const [description, setDescription] = useState("");
+
+  const [locationCoords, setLocationCoords] = useState(null);
+  const [isMapReady, setIsMapReady] = useState(false);
+
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [apiError, setApiError] = useState("");
+  const [apiSuccess, setApiSuccess] = useState("");
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      if (imagePreview) URL.revokeObjectURL(imagePreview);
+      setImageFile(null);
+      setImagePreview("");
+      return;
+    }
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
+    setImageFile(file);
+    const url = URL.createObjectURL(file);
+    setImagePreview(url);
+  };
+
+  const handleRemoveImage = () => {
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
+    setImageFile(null);
+    setImagePreview("");
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setApiError("");
+    setApiSuccess("");
+    setIsSubmitting(true);
+
+    const notice = {
+      title,
+      category,
+      date,
+      isOnline,
+      locationCoords: isOnline ? null : locationCoords,
+      peopleNeeded: peopleNeeded ? Number(peopleNeeded) : null,
+      imageFileName: imageFile?.name || null,
+      description,
+    };
+
+    try {
+      const res = await fakeCreateNotice(notice);
+      setApiSuccess("Ogłoszenie zostało dodane.");
+
+      onNoticeCreated && onNoticeCreated(res.notice);
+
+      setTitle("");
+      setCategory("");
+      setDate("");
+      setIsOnline(false);
+      setPeopleNeeded("");
+      setLocationCoords(null);
+      setImageFile(null);
+      if (imagePreview) URL.revokeObjectURL(imagePreview);
+      setImagePreview("");
+      setDescription("");
+      setIsMapReady(false);
+    } catch (err) {
+      setApiError(err.message || "Coś poszło nie tak przy dodawaniu ogłoszenia.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div
+      className="w-full 
+                 bg-white dark:bg-slate-900 
+                 rounded-2xl shadow-soft border 
+                 border-slate-200 dark:border-slate-800
+                 p-6 sm:p-8 transition-colors"
+    >
+      <div className="flex items-start justify-between gap-4 mb-6">
+        <div>
+          <div className="inline-flex items-center gap-2 rounded-full bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 px-2 py-1 mb-3 text-[11px] text-slate-500 dark:text-slate-400">
+            <span className="h-2 w-2 rounded-full bg-accentBlue" />
+            Formularz dodawania ogłoszenia • Helpi
+          </div>
+          <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 dark:text-white">
+            Dodaj nowe ogłoszenie
+          </h1>
+          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+            Opisz potrzebę, wybierz kategorię i wskaż miejsce na mapie.
+          </p>
+        </div>
+      </div>
+
+      {apiError && (
+        <div className="mb-4 text-sm rounded-xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950 px-3 py-2 text-red-700 dark:text-red-300">
+          {apiError}
+        </div>
+      )}
+      {apiSuccess && (
+        <div className="mb-4 text-sm rounded-xl border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950 px-3 py-2 text-emerald-700 dark:text-emerald-300">
+          {apiSuccess}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+            Tytuł ogłoszenia
+          </label>
+          <div
+            className="flex items-center gap-2 rounded-2xl 
+                       border border-slate-200 
+                       bg-slate-50
+                       px-3 py-2.5 
+                       focus-within:border-accentBlue/70 
+                       focus-within:bg-white
+                       transition"
+          >
+            <FiType className="text-slate-400 text-sm" />
+            <input
+              type="text"
+              className="w-full bg-transparent text-sm outline-none 
+                         placeholder:text-slate-400 
+                         text-slate-900"
+              placeholder="Np. Weekendowa akcja sprzątania parku"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              disabled={isSubmitting}
+            />
+          </div>
+        </div>
+
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+              Kategoria
+            </label>
+            <div
+              className="flex items-center gap-2 rounded-2xl 
+                         border border-slate-200 
+                         bg-slate-50
+                         px-3 py-2.5 
+                         focus-within:border-accentBlue/70 
+                         focus-within:bg-white
+                         transition"
+            >
+              <FiTag className="text-slate-400 text-sm" />
+              <select
+                className="w-full bg-transparent text-sm outline-none text-slate-900 placeholder:text-slate-400"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                disabled={isSubmitting}
+              >
+                <option value="">Wybierz kategorię</option>
+                <option value="event">Wydarzenie / event</option>
+                <option value="fundraising">Zbiórka / fundraising</option>
+                <option value="education">Edukacja / warsztaty</option>
+                <option value="support">Wsparcie indywidualne</option>
+                <option value="other">Inne</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+              Data wydarzenia
+            </label>
+            <div
+              className="flex items-center gap-2 rounded-2xl 
+                         border border-slate-200 
+                         bg-slate-50
+                         px-3 py-2.5 
+                         focus-within:border-accentBlue/70 
+                         focus-within:bg-white
+                         transition"
+            >
+              <FiCalendar className="text-slate-400 text-sm" />
+              <input
+                type="date"
+                className="w-full bg-transparent text-sm outline-none text-slate-900"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                disabled={isSubmitting}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex items-center justify-between gap-2">
+            <label className="text-xs font-medium text-slate-600 dark:text-slate-300 flex items-center gap-2">
+              <FiMapPin className="text-slate-400" />
+              Lokalizacja na mapie
+            </label>
+            <label className="inline-flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400">
+              <input
+                type="checkbox"
+                className="rounded border-slate-300 dark:border-slate-600 text-accentBlue focus:ring-accentBlue/70"
+                checked={isOnline}
+                onChange={(e) => setIsOnline(e.target.checked)}
+                disabled={isSubmitting}
+              />
+              <span>Wydarzenie online</span>
+            </label>
+          </div>
+
+          <div className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
+            {!isMapReady && !isOnline && (
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900">
+                <div className="h-6 w-6 rounded-full border-2 border-accentBlue border-t-transparent animate-spin mb-2" />
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  Ładowanie mapy…
+                </p>
+              </div>
+            )}
+
+            <div className={isOnline ? "opacity-60 pointer-events-none" : ""}>
+              <MapContainer
+                center={[52.23, 21.01]}
+                zoom={6}
+                scrollWheelZoom={!isOnline}
+                className="h-64 w-full"
+                whenReady={() => setIsMapReady(true)}
+              >
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                <LocationPicker
+                  isOnline={isOnline}
+                  onSelect={(coords) => setLocationCoords(coords)}
+                />
+                {locationCoords && !isOnline && (
+                  <Marker
+                    position={[locationCoords.lat, locationCoords.lng]}
+                    icon={markerIcon}
+                  />
+                )}
+              </MapContainer>
+            </div>
+
+            <div className="absolute bottom-0 inset-x-0 bg-white/80 dark:bg-slate-900/85 border-t border-slate-200/70 dark:border-slate-800/80 px-3 py-2 flex items-center justify-between gap-3 text-[11px] text-slate-600 dark:text-slate-300">
+              <div className="flex flex-col">
+                {isOnline ? (
+                  <span>Tryb online – mapa wyłączona.</span>
+                ) : locationCoords ? (
+                  <>
+                    <span className="font-medium">Lokalizacja wybrana na mapie</span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                      Lat: {locationCoords.lat} · Lng: {locationCoords.lng}
+                    </span>
+                  </>
+                ) : (
+                  <span>Kliknij w mapę, aby ustawić przybliżoną lokalizację wydarzenia.</span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="grid sm:grid-cols-[0.9fr,1.1fr] gap-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                Liczba potrzebnych wolontariuszy
+              </label>
+              <div
+                className="flex items-center gap-2 rounded-2xl 
+                           border border-slate-200 
+                           bg-slate-50
+                           px-3 py-2.5 
+                           focus-within:border-accentGreen/70 
+                           focus-within:bg-white
+                           transition"
+              >
+                <FiUsers className="text-slate-400 text-sm" />
+                <input
+                  type="number"
+                  min="1"
+                  className="w-full bg-transparent text-sm outline-none 
+                             placeholder:text-slate-400 
+                             text-slate-900"
+                  placeholder="Np. 10"
+                  value={peopleNeeded}
+                  onChange={(e) => setPeopleNeeded(e.target.value)}
+                  disabled={isSubmitting}
+                />
+              </div>
+              <p className="text-[11px] text-slate-400">
+                Jeśli nie wiesz – możesz zostawić puste.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+            Obrazek / grafika wydarzenia (plik, opcjonalnie)
+          </label>
+          <div
+            className="flex flex-col sm:flex-row sm:items-center gap-3 rounded-2xl 
+                       border border-slate-200 
+                       bg-slate-50
+                       px-3 py-2.5 
+                       transition"
+          >
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-xl bg-accentOrange/20 flex items-center justify-center">
+                <FiImage className="text-accentOrange" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs text-slate-700">Dodaj plik graficzny</span>
+                <span className="text-[11px] text-slate-400">
+                  JPG, PNG – max kilka MB (symulacja, brak realnego uploadu).
+                </span>
+              </div>
+            </div>
+            <div className="flex-1 flex items-center justify-end gap-2">
+              <label className="inline-flex items-center text-xs font-medium px-3 py-1.5 rounded-full bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 cursor-pointer transition">
+                Wybierz plik
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  disabled={isSubmitting}
+                  className="hidden"
+                />
+              </label>
+              {imageFile && (
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="inline-flex items-center gap-1 text-[11px] px-3 py-1.5 rounded-full border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition"
+                >
+                  <FiX className="text-xs" />
+                  Usuń zdjęcie
+                </button>
+              )}
+            </div>
+          </div>
+
+          {imageFile && (
+            <div className="mt-2 flex items-center gap-3">
+              {imagePreview && (
+                <img
+                  src={imagePreview}
+                  alt="Podgląd"
+                  className="h-12 w-12 rounded-xl object-cover border border-slate-200"
+                />
+              )}
+              <div className="flex flex-col">
+                <span className="text-xs text-slate-700 dark:text-slate-200">
+                  {imageFile.name}
+                </span>
+                <span className="text-[11px] text-slate-400">
+                  Rozmiar: {(imageFile.size / 1024).toFixed(1)} KB
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+            Opis ogłoszenia
+          </label>
+          <div
+            className="flex items-start gap-2 rounded-2xl 
+                       border border-slate-200 
+                       bg-slate-50
+                       px-3 py-2.5 
+                       focus-within:border-accentBlue/70 
+                       focus-within:bg-white
+                       transition"
+          >
+            <FiAlignLeft className="text-slate-400 text-sm mt-1" />
+            <textarea
+              rows={4}
+              className="w-full bg-transparent text-sm outline-none 
+                         placeholder:text-slate-400 
+                         text-slate-900 resize-none"
+              placeholder="Opisz krótko, czego dotyczy akcja, jakie są zadania wolontariuszy, ile czasu potrzeba itp."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              disabled={isSubmitting}
+            />
+          </div>
+        </div>
+
+        <div className="pt-2 flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="inline-flex items-center justify-center gap-2 
+                       rounded-2xl 
+                       bg-accentBlue/80 hover:bg-accentBlue/90 
+                       text-white dark:text-slate-950
+                       text-sm font-medium py-2.5 px-6
+                       shadow-soft hover:shadow-none hover:translate-y-[1px] active:translate-y-[2px]
+                       transition disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {isSubmitting ? (
+              <>
+                <span className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                Zapisywanie ogłoszenia...
+              </>
+            ) : (
+              "Dodaj ogłoszenie"
+            )}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
