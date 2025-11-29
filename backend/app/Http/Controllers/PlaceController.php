@@ -9,36 +9,35 @@ class PlaceController extends Controller
 {
     public function search(Request $request)
     {
-        $search = $request->get('search');
+        $query = $request->get('search');
+        if (!$query) return [];
+
         $key = env('GOOGLE_PLACES_KEY');
 
-        if (!$search) {
-            return [];
-        }
-
-        $auto = Http::get('https://maps.googleapis.com/maps/api/place/autocomplete/json', [
-            'input' => $search,
-            'types' => 'establishment',
+        // Autocomplete, ograniczenie do Polski
+        $response = Http::get('https://maps.googleapis.com/maps/api/place/autocomplete/json', [
+            'input' => $query,
+            'language' => 'pl',
             'components' => 'country:pl',
             'key' => $key,
         ])->json();
 
-        $predictions = collect($auto['predictions'])->take(5);
+        $predictions = collect($response['predictions'] ?? [])->take(5);
 
         $results = $predictions->map(function ($item) use ($key) {
             $details = Http::get('https://maps.googleapis.com/maps/api/place/details/json', [
                 'place_id' => $item['place_id'],
                 'key' => $key,
-                'fields' => 'geometry/location,formatted_address,name'
+                'fields' => 'geometry/location,formatted_address,name,address_components'
             ])->json();
 
-            $loc = $details['result']['geometry']['location'] ?? null;
+            $place = $details['result'] ?? [];
 
             return [
-                'name' => $details['result']['name'] ?? null,
-                'address' => $details['result']['formatted_address'] ?? null,
-                'latitude' => $loc['lat'] ?? null,
-                'longitude' => $loc['lng'] ?? null,
+                'name' => $place['name'] ?? null,
+                'address' => $place['formatted_address'] ?? null,
+                'latitude' => $place['geometry']['location']['lat'] ?? null,
+                'longitude' => $place['geometry']['location']['lng'] ?? null,
             ];
         });
 

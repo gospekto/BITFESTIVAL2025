@@ -8,6 +8,7 @@ use App\Http\Resources\NoticeResource;
 use App\Models\Notice;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class NoticeController extends Controller
 {
@@ -23,6 +24,7 @@ class NoticeController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+        Log::info($request->all());
         $user = $request->user();
         $fields = $request->validate([
             'title' => 'required|string|max:255',
