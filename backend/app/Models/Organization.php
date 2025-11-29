@@ -15,6 +15,7 @@ class Organization extends Model
         'contact_email',
         'address',
         'logo_url',
+        'verified',
     ];
 
     public function users()

@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\API\AdminOrganizationController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\NoticeController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\VolunteerNoticeController;
+use App\Http\Controllers\PlaceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -19,11 +21,21 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::middleware('role:volunteer')->group(function () {
+        Route::get('/all-notices', [VolunteerNoticeController::class, 'allNotices']);
         Route::get('/my-notices', [VolunteerNoticeController::class, 'index']);
+        Route::get('/notices/{notice}', [VolunteerNoticeController::class, 'show']);
         Route::post('/notices/{notice}/join', [VolunteerNoticeController::class, 'join']);
         Route::post('/notices/{notice}/leave', [VolunteerNoticeController::class, 'leave']);
+        Route::get('/notices-in-range', [VolunteerNoticeController::class, 'noticesInRange']);
+    });
+
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/organizations', [AdminOrganizationController::class, 'index']);
+        Route::post('/organization/{organization}/verify', [AdminOrganizationController::class, 'verifyOrganization']);
     });
 });
+
+Route::get('/search-places', [PlaceController::class, 'search']);
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);

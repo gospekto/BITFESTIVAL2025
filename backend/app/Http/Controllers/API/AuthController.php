@@ -9,13 +9,11 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
     public function register(Request $request): JsonResponse
     {
-        Log::info($request->all());
         $isOrganizer = filter_var($request->input('is_organizer'), FILTER_VALIDATE_BOOLEAN);
 
         $fields = $request->validate(
@@ -24,18 +22,19 @@ class AuthController extends Controller
                 'surname' => 'required|string|max:255',
                 'email' => 'required|string|email|unique:users,email',
                 'password' => 'required|string|confirmed|min:6',
+                'address' => 'required|string|max:255',
+                'latitude' => 'required|string',
+                'longitude' => 'required|string',
                 'is_organizer' => 'required|boolean',
                 'organization_name' => 'required_if:is_organizer,true|string|max:255',
                 'area_of_activity' => 'required_if:is_organizer,true|string|max:255',
                 'contact_email' => 'required_if:is_organizer,true|email|max:255',
-                'address' => 'required_if:is_organizer,true|string|max:255',
                 'logo' => 'nullable|image|max:2048',
             ],
             [
                 'organization_name.required_if' => 'Pole nazwa organizacji jest wymagane gdy konto jest organizacją.',
                 'area_of_activity.required_if' => 'Pole obszar działalności jest wymagane gdy konto jest organizacją.',
                 'contact_email.required_if' => 'Pole email kontaktowy jest wymagane gdy konto jest organizacją.',
-                'address.required_if' => 'Pole adres jest wymagane gdy konto jest organizacją.',
             ]
         );
 
@@ -84,16 +83,17 @@ class AuthController extends Controller
             'surname' => 'sometimes|required|string|max:255',
             'email' => 'sometimes|required|string|email|unique:users,email,'.$user->id,
             'password' => 'nullable|string|confirmed|min:6',
+            'address' => 'required|string|max:255',
+            'latitude' => 'required|string',
+            'longitude' => 'required|string',
             'organization_name' => 'required_if:is_organizer,true|string|max:255',
             'area_of_activity' => 'required_if:is_organizer,true|string|max:255',
             'contact_email' => 'required_if:is_organizer,true|email|max:255',
-            'address' => 'required_if:is_organizer,true|string|max:255',
             'logo' => 'nullable|image|max:2048',
         ], [
             'organization_name.required_if' => 'Pole nazwa organizacji jest wymagane gdy konto jest organizacją.',
             'area_of_activity.required_if' => 'Pole obszar działalności jest wymagane gdy konto jest organizacją.',
             'contact_email.required_if' => 'Pole email kontaktowy jest wymagane gdy konto jest organizacją.',
-            'address.required_if' => 'Pole adres jest wymagane gdy konto jest organizacją.',
         ]);
 
         $user->update([

@@ -10,6 +10,15 @@ use Illuminate\Http\Request;
 
 class VolunteerNoticeController extends Controller
 {
+    public function allNotices(Request $request): JsonResponse
+    {
+        $notices = Notice::withCount('users')->get();
+
+        return response()->json([
+            'notices' => NoticeResource::collection($notices),
+        ]);
+    }
+
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -46,5 +55,38 @@ class VolunteerNoticeController extends Controller
         $notice->users()->detach($user->id);
 
         return response()->json(['message' => 'Pomyślnie opuszczono ogłoszenie.']);
+    }
+
+    public function show(Request $request, Notice $notice): JsonResponse
+    {
+        return response()->json([
+            'notice' => new NoticeResource($notice),
+        ]);
+    }
+
+    public function noticesInRange(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $lat = $request->input('latitude', $user->latitude);
+        $lng = $request->input('longitude', $user->longitude);
+        $radius = $request->input('radius', 10);
+        $notices = Notice::select('*')
+            ->selectRaw('
+            (6371 * acos(
+                cos(radians(?)) *
+                cos(radians(latitude)) *
+                cos(radians(longitude) - radians(?)) +
+                sin(radians(?)) *
+                sin(radians(latitude))
+            )) AS distance
+        ', [$lat, $lng, $lat])
+            ->having('distance', '<=', $radius)
+            ->orderBy('distance')
+            ->get();
+
+        return response()->json([
+            'notices' => NoticeResource::collection($notices),
+        ]);
     }
 }

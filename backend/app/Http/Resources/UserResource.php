@@ -29,6 +29,7 @@ class UserResource extends JsonResource
                 'area_of_activity' => $organization->area_of_activity,
                 'contact_email' => $organization->contact_email,
                 'address' => $organization->address,
+                'verified' => $organization->verified,
                 'logo_url' => $organization->logo_url ? Storage::url($organization->logo_url) : null,
             ];
         }
