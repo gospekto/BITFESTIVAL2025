@@ -14,6 +14,7 @@ import DashboardPage from "./pages/DashboardPage";
 import NoticesFeed from "./pages/NoticeFeed";
 import NoticeDetailsPage from "./pages/NoticeDetailsPage";
 import OrganizationDashboardPage from "./pages/OrganizationDashboardPage";
+import AdminPage from "./pages/AdminPage";
 
 const router = createBrowserRouter([
   {
@@ -28,6 +29,7 @@ const router = createBrowserRouter([
       { path: "feed", element: <NoticesFeed /> },
       { path: "/notice/:id", element: <NoticeDetailsPage /> },
       { path: "profile", element: <ProfilePage />},
+      { path: "admin", element: <AdminPage />},
     ],
   },
 ]);
