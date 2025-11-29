@@ -246,7 +246,7 @@ export default function AuthForm() {
                       value={organizationName}
                       onChange={(e) => setOrganizationName(e.target.value)}
                       disabled={isSubmitting}
-                      className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-slate-100"
+                      className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-black"
                     />
                   </div>
                 </div>
@@ -263,7 +263,7 @@ export default function AuthForm() {
                       value={areaOfActivity}
                       onChange={(e) => setAreaOfActivity(e.target.value)}
                       disabled={isSubmitting}
-                      className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-slate-100"
+                     className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-black"
                     />
                   </div>
                 </div>
@@ -280,7 +280,7 @@ export default function AuthForm() {
                       value={contactEmail}
                       onChange={(e) => setContactEmail(e.target.value)}
                       disabled={isSubmitting}
-                      className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-slate-100"
+                     className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-black"
                     />
                   </div>
                 </div>
@@ -297,7 +297,7 @@ export default function AuthForm() {
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
                       disabled={isSubmitting}
-                      className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-slate-100"
+                     className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-black"
                     />
                   </div>
                 </div>
@@ -334,7 +334,7 @@ export default function AuthForm() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   disabled={isSubmitting}
-                  className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-slate-100"
+                 className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-black"
                 />
               </div>
             </div>
@@ -351,7 +351,7 @@ export default function AuthForm() {
                   value={surname}
                   onChange={(e) => setSurname(e.target.value)}
                   disabled={isSubmitting}
-                  className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-slate-100"
+                 className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-black"
                 />
               </div>
             </div>
@@ -370,7 +370,7 @@ export default function AuthForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={isSubmitting}
-              className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-slate-100"
+             className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-black"
             />
           </div>
         </div>
@@ -387,7 +387,7 @@ export default function AuthForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={isSubmitting}
-              className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-slate-100"
+             className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-black"
             />
           </div>
         </div>
@@ -405,7 +405,7 @@ export default function AuthForm() {
                 value={passwordConfirmation}
                 onChange={(e) => setPasswordConfirmation(e.target.value)}
                 disabled={isSubmitting}
-                className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-slate-100"
+               className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-black"
               />
             </div>
           </div>
