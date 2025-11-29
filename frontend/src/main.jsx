@@ -13,6 +13,7 @@ import { AuthProvider } from "./context/AuthContext";
 import DashboardPage from "./pages/DashboardPage";
 import NoticesFeed from "./pages/NoticeFeed";
 import NoticeDetailsPage from "./pages/NoticeDetailsPage";
+import OrganizationDashboardPage from "./pages/OrganizationDashboardPage";
 
 const router = createBrowserRouter([
   {
@@ -21,8 +22,9 @@ const router = createBrowserRouter([
     children: [
       { path: "", element: <HomePage /> },
       { path: "login", element: <LoginScreen /> },
-      { path: "test", element: <NoticeForm /> },
+      { path: "new-ad", element: <NoticeForm /> },
       { path: "dashboard", element: <DashboardPage /> },
+      { path: "organization-dashboard", element: <OrganizationDashboardPage /> },
       { path: "feed", element: <NoticesFeed /> },
       { path: "/notice/:id", element: <NoticeDetailsPage /> },
       { path: "profile", element: <ProfilePage />},
