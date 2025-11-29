@@ -1,9 +1,18 @@
 import { FiUser, FiEdit3 } from "react-icons/fi";
+import { Link } from "react-router-dom";
+import { FiArrowLeft } from "react-icons/fi";
 
 export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
+        <Link
+          to="/dashboard"
+          className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+        >
+          <FiArrowLeft className="text-xs" />
+          Wróć
+        </Link>
         <h1 className="text-xl sm:text-2xl font-semibold mb-4">
           Twój profil wolontariusza
         </h1>

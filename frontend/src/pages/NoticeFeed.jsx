@@ -1,4 +1,6 @@
 import NoticeCard from "../components/NoticeCard";
+import { Link } from "react-router-dom";
+import { FiArrowLeft } from "react-icons/fi";
 
 export default function NoticesFeed() {
   const mockData = [
@@ -48,6 +50,13 @@ export default function NoticesFeed() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-4 py-12">
+      <Link
+        to="/dashboard"
+        className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+      >
+        <FiArrowLeft className="text-xs" />
+        Wróć
+      </Link>
       <h1 className="text-center w-full text-2xl font-bold">Ogłoszenia</h1>
       {mockData.map((notice) => (
         <NoticeCard key={notice.id} notice={notice} />

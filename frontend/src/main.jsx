@@ -24,8 +24,8 @@ const router = createBrowserRouter([
       { path: "test", element: <NoticeForm /> },
       { path: "dashboard", element: <DashboardPage /> },
       { path: "feed", element: <NoticesFeed /> },
-      { path: "/notice/:id", element: <NoticeDetailsPage /> }
-      {path: "profile", element: <ProfilePage />},
+      { path: "/notice/:id", element: <NoticeDetailsPage /> },
+      { path: "profile", element: <ProfilePage />},
     ],
   },
 ]);

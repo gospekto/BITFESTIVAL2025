@@ -23,7 +23,7 @@ export default function NavbarLogged() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
 
         {/* LOGO */}
-        <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
+        <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/dashboard")}>
           <div className="h-8 w-8 rounded-2xl bg-gradient-to-tr from-accentBlue via-accentGreen to-accentOrange flex items-center justify-center text-white font-semibold text-base">
             H
           </div>

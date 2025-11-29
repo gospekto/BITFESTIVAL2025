@@ -15,29 +15,14 @@ import { useNavigate } from "react-router-dom";
 
 
 export default function DashboardPage() {
-  const [openMenu, setOpenMenu] = useState(false);
   const menuRef = useRef();
   const navigate = useNavigate();
-  const { logout, user } = useAuth();
-
-  // zamykanie menu po kliknięciu poza nim
-  useEffect(() => {
-    const handleClick = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        setOpenMenu(false);
-      }
-    };
-    document.addEventListener("click", handleClick);
-    return () => document.removeEventListener("click", handleClick);
-  }, []);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
       
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        {/* Pierwszy rząd - radar + lista akcji */}
         <div className="grid lg:grid-cols-[1.2fr,0.9fr] gap-6 mb-8">
-          {/* Radar aktywności - mapa helio */}
           <section className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-soft p-4 sm:p-5">
             <div className="flex items-center justify-between mb-3">
               <div>
@@ -57,28 +42,22 @@ export default function DashboardPage() {
               </button>
             </div>
 
-            {/* Pseudo mapa - placeholder pod prawdziwą mapę */}
             <div className="relative rounded-2xl bg-gradient-to-tr from-slate-900 via-slate-800 to-slate-900 h-64 sm:h-72 overflow-hidden">
-              {/* "Mapa" tła */}
               <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_10%_20%,#38bdf8_0,transparent_50%),radial-gradient(circle_at_80%_0,#22c55e_0,transparent_55%),radial-gradient(circle_at_50%_90%,#f97316_0,transparent_55%)]" />
 
-              {/* Okręgi "radaru" */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="h-40 w-40 rounded-full border border-slate-600/60" />
                 <div className="h-56 w-56 rounded-full border border-slate-700/60" />
                 <div className="h-72 w-72 rounded-full border border-slate-800/80" />
               </div>
 
-              {/* Punkty pomocy */}
               <RadarPin x="22%" y="35%" label="Potrzebna pomoc" tone="orange" />
               <RadarPin x="65%" y="25%" label="Aktywna akcja" tone="blue" />
               <RadarPin x="45%" y="70%" label="Zgłoszona potrzeba" tone="green" />
 
-              {/* Wolontariusze */}
               <RadarPin x="32%" y="55%" label="Wolontariusz - Kasia" tone="volunteer" />
               <RadarPin x="78%" y="60%" label="Wolontariusz - Michał" tone="volunteer" />
 
-              {/* Legendka */}
               <div className="absolute left-3 bottom-3 flex flex-wrap gap-2 bg-slate-900/70 backdrop-blur rounded-2xl px-3 py-2 text-[10px] text-slate-200">
                 <div className="flex items-center gap-1">
                   <span className="h-2 w-2 rounded-full bg-accentOrange" />
@@ -100,7 +79,6 @@ export default function DashboardPage() {
             </div>
           </section>
 
-          {/* Lista akcji obok mapy */}
           <section className="flex flex-col gap-4">
             <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-soft p-4">
               <div className="flex items-center justify-between mb-3">
@@ -144,9 +122,19 @@ export default function DashboardPage() {
                 />
               </div>
 
-              <button className="mt-4 w-full inline-flex items-center justify-center rounded-2xl border border-slate-200 dark:border-slate-700 px-3 py-1.5 text-[11px] text-slate-600 dark:text-slate-200 hover:border-accentBlue/70 hover:text-accentBlue transition">
-                Pokaż wszystkie akcje w okolicy
+              <button
+                onClick={() => navigate('/feed')}
+                className="mt-4 w-full inline-flex items-center justify-center
+                           rounded-2xl px-5 py-3
+                           text-base sm:text-lg font-semibold
+                           bg-accentBlue text-white
+                           hover:bg-accentBlue/90
+                           active:translate-y-[1px]
+                           shadow-soft transition"
+              >
+                Zobacz wszystkie ogłoszenia
               </button>
+
             </div>
 
             <div className="rounded-3xl bg-slate-900 text-slate-50 border border-slate-800 p-4 flex items-start gap-3">
@@ -170,7 +158,6 @@ export default function DashboardPage() {
           </section>
         </div>
 
-        {/* Drugi rząd - statystyki, Twoje konto, skróty */}
         <div className="grid md:grid-cols-3 gap-4">
           <section className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm p-4">
             <div className="flex items-center gap-2 mb-3">
@@ -259,7 +246,6 @@ export default function DashboardPage() {
   )
 }
 
-/* Pomocnicze komponenty */
 
 function RadarPin({ x, y, label, tone }) {
   let colorClasses = ""
