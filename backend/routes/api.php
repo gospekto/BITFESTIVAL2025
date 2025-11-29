@@ -33,7 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::middleware('role:admin')->group(function () {
         Route::get('/admin-notices', [AdminNoticesController::class, 'index']);
-        Route::dlete('/admin/notices/{notice}', [AdminNoticesController::class, 'destroy']);
+        Route::delete('/admin/notices/{notice}', [AdminNoticesController::class, 'destroy']);
         Route::get('/organizations', [AdminOrganizationController::class, 'index']);
         Route::post('/organization/{organization}/verify', [AdminOrganizationController::class, 'verifyOrganization']);
     });
