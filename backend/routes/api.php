@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\AdminNoticesController;
 use App\Http\Controllers\API\AdminOrganizationController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\NoticeController;
@@ -30,6 +31,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::middleware('role:admin')->group(function () {
+        Route::get('/admin-notices', [AdminNoticesController::class, 'index']);
         Route::get('/organizations', [AdminOrganizationController::class, 'index']);
         Route::post('/organization/{organization}/verify', [AdminOrganizationController::class, 'verifyOrganization']);
     });
