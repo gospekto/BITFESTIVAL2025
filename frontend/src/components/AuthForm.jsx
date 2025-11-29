@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FiMail, FiLock, FiUser } from "react-icons/fi";
+import { Link } from "react-router-dom";
 
 function fakeAuthRequest({ mode, name, email, password }) {
   return new Promise((resolve, reject) => {
@@ -67,7 +68,7 @@ export default function AuthForm({ onAuthSuccess }) {
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-xl font-semibold text-slate-800 dark:text-white">
-            {isLogin ? "Witaj ponownie 👋" : "Załóż nowe konto 🌸"}
+            {isLogin ? "Witaj ponownie" : "Załóż nowe konto"}
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             {isLogin
@@ -247,6 +248,16 @@ export default function AuthForm({ onAuthSuccess }) {
             "Utwórz konto"
           )}
         </button>
+        <Link
+          to="/"
+          className="inline-flex items-center justify-center px-5 py-2 rounded-2xl text-sm font-medium
+                     bg-white/90 hover:bg-white
+                     dark:bg-slate-900/80 dark:hover:bg-slate-900
+                     border border-slate-200 dark:border-slate-700
+                     text-slate-700 dark:text-slate-100 transition w-full"
+        >
+          Strona główna
+        </Link>
 
         <p className="text-[11px] text-slate-400 dark:text-slate-500 text-center mt-2">
           Kontynuując, akceptujesz nasze{" "}

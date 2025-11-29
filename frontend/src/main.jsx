@@ -6,13 +6,15 @@ import App from "./App";
 import LoginScreen from "./pages/LoginScreen";
 
 import "./index.css";
+import HomePage from "./pages/HomePage";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
     children: [
-      { path: "", element: <LoginScreen /> },
+      { path: "", element: <HomePage /> },
+      { path: "login", element: <LoginScreen /> },
     ],
   },
 ]);
