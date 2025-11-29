@@ -296,9 +296,12 @@ export default function DashboardPage() {
                 <span>Najczęściej pomagane obszary: <strong>seniorzy, porządki</strong></span>
               </li>
             </ul>
-            <button className="mt-3 w-full inline-flex items-center justify-center rounded-2xl bg-slate-900 text-slate-50 dark:bg-slate-50 dark:text-slate-950 text-[11px] font-medium px-3 py-1.5 hover:bg-slate-800 dark:hover:bg-slate-200 transition">
-              Przejdź do profilu
-            </button>
+         <button
+            onClick={() => navigate("/profile")}
+            className="mt-3 w-full inline-flex items-center justify-center rounded-2xl bg-slate-900 text-slate-50 dark:bg-slate-50 dark:text-slate-950 text-[11px] font-medium px-3 py-1.5 hover:bg-slate-800 dark:hover:bg-slate-200 transition"
+          >
+          Przejdź do profilu
+        </button>
           </section>
 
           <section className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm p-4">
