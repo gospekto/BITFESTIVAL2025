@@ -40,7 +40,7 @@ export default function HomePage() {
               Zaloguj się
             </Link>
             <Link
-              to="/login"
+              to="/login?mode=register"
               className="inline-flex items-center px-4 py-1.5 text-xs rounded-full bg-accentBlue/80 hover:bg-accentBlue/90 dark:bg-accentBlue/70 dark:hover:bg-accentBlue/80 text-white dark:text-slate-950 font-medium shadow-soft active:translate-y-[1px] transition"
             >
               Dołącz do Helpi
