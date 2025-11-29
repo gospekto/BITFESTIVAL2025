@@ -10,6 +10,15 @@ use Illuminate\Http\Request;
 
 class VolunteerNoticeController extends Controller
 {
+    public function allNotices(Request $request): JsonResponse
+    {
+        $notices = Notice::all();
+
+        return response()->json([
+            'notices' => NoticeResource::collection($notices),
+        ]);
+    }
+
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
