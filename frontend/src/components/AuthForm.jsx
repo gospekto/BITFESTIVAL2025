@@ -211,13 +211,13 @@ const handleSelectPlace = (place) => {
             formData.append("logo", logo);
           }
         }
-        // 
-        console.log("Dane wysyłane do backendu:", {
-          address,
-          latitude: lat,
-          longitude: lng
-        });
-        // 
+        // // 
+        // console.log("Dane wysyłane do backendu:", {
+        //   address,
+        //   latitude: lat,
+        //   longitude: lng
+        // });
+        // // 
         res = await register(formData);
         setApiSuccess(`Konto utworzone dla ${res.email}`);
         navigate(isOrganizer ? "/organization-dashboard" : "/dashboard");
@@ -448,6 +448,8 @@ const handleSelectPlace = (place) => {
           </>
         )}
 
+        
+        {!isLogin && role && (
                         <div className="space-y-1.5">
                   <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
                     Adres
@@ -495,7 +497,7 @@ const handleSelectPlace = (place) => {
                     Wybierz adres z listy, wtedy współrzędne zapiszą się automatycznie.
                   </p>
                 </div>
-
+              )}
 
         <div className="space-y-1.5">
           <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
