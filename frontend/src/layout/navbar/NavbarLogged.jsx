@@ -73,8 +73,9 @@ export default function NavbarLogged() {
                 <span className="text-[11px] font-medium">
                   Cześć, {user?.name}
                 </span>
+                
                 <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                  konto wolontariusza
+                  {user?.is_organizer ? "konto wolontariusza" : "konto organizacji"}
                 </span>
               </div>
             </button>
