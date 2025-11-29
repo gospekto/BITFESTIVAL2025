@@ -116,6 +116,7 @@ export default function AuthForm() {
         }
         res = await register(formData);
         setApiSuccess(`Konto utworzone dla ${res.email}`);
+        navigate(isOrganizer ? "/organization-dashboard" : "/dashboard");
       }
 
       setPassword("");
