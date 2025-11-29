@@ -14,7 +14,7 @@ class NoticeController extends Controller
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
-        $notices = Notice::where('organization_id', $user->organizations()->first()->id)->get();
+        $notices = Notice::where('organization_id', $user->organizations()->first()->id)->with('users')->get();
 
         return response()->json([
             'notices' => NoticeResource::collection($notices),

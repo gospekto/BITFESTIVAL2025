@@ -4,6 +4,7 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\NoticeController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\VolunteerNoticeController;
+use App\Http\Controllers\PlaceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -25,6 +26,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/notices/{notice}/leave', [VolunteerNoticeController::class, 'leave']);
     });
 });
+
+Route::get('/search-places', [PlaceController::class, 'search']);
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
