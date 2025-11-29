@@ -20,19 +20,6 @@ export default function NavbarGuest() {
           </div>
         </div>
 
-        {/* LINKI */}
-        <nav className="hidden sm:flex items-center gap-6 text-xs font-medium text-slate-500 dark:text-slate-400">
-          <a href="#jak-dziala" className="hover:text-slate-900 dark:hover:text-white transition">
-            Jak działa
-          </a>
-          <a href="#funkcje" className="hover:text-slate-900 dark:hover:text-white transition">
-            Funkcje
-          </a>
-          <a href="#seo" className="hover:text-slate-900 dark:hover:text-white transition">
-            Dla kogo
-          </a>
-        </nav>
-
         {/* CTA */}
         <div className="flex items-center gap-2">
           <Link
