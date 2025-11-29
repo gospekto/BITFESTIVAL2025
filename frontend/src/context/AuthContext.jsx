@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }) => {
   // ---- wylogowanie ----
   const logout = async () => {
     try {
-      await api.post("/logout"); // jeśli backend wymaga wylogowania
+      await api.get("/logout"); // jeśli backend wymaga wylogowania
     } catch (err) {
       console.log("Błąd podczas logout");
     } finally {
