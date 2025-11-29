@@ -36,6 +36,7 @@ class NoticeResource extends JsonResource
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
             'users' => NoticeUserResource::collection($this->whenLoaded('users')),
+            'registered_users_count' => $this->users_count,
         ];
     }
 }
