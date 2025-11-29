@@ -10,6 +10,12 @@ export default function NavbarLogged() {
   const [openMenu, setOpenMenu] = useState(false);
   const menuRef = useRef();
 
+  const handleLogout = async () => {
+    setOpenMenu(false);
+    await logout();
+    navigate("/");
+  };
+
   useEffect(() => {
     const handle = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) setOpenMenu(false);
@@ -23,7 +29,7 @@ export default function NavbarLogged() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
 
         {/* LOGO */}
-        <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/dashboard")}>
+        <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate(user ? "/dashboard" : "/")}> 
           <div className="h-8 w-8 rounded-2xl bg-gradient-to-tr from-accentBlue via-accentGreen to-accentOrange flex items-center justify-center text-white font-semibold text-base">
             H
           </div>
@@ -84,7 +90,7 @@ export default function NavbarLogged() {
                 </button>
 
                 <button
-                  onClick={logout}
+                  onClick={handleLogout}
                   className="w-full px-3 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
                 >
                   Wyloguj

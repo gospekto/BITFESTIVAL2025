@@ -9,11 +9,13 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
     public function register(Request $request): JsonResponse
     {
+        Log::info($request->all());
         $isOrganizer = filter_var($request->input('is_organizer'), FILTER_VALIDATE_BOOLEAN);
 
         $fields = $request->validate(
@@ -80,7 +82,7 @@ class AuthController extends Controller
         $fields = $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'surname' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|string|email|unique:users,email,'.$user->id,
+            'email' => 'sometimes|required|string|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|confirmed|min:6',
             'organization_name' => 'required_if:is_organizer,true|string|max:255',
             'area_of_activity' => 'required_if:is_organizer,true|string|max:255',
