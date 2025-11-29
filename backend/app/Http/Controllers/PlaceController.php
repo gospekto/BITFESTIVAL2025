@@ -10,7 +10,9 @@ class PlaceController extends Controller
     public function search(Request $request)
     {
         $query = $request->get('search');
-        if (!$query) return [];
+        if (! $query) {
+            return [];
+        }
 
         $key = env('GOOGLE_PLACES_KEY');
 
@@ -28,7 +30,7 @@ class PlaceController extends Controller
             $details = Http::get('https://maps.googleapis.com/maps/api/place/details/json', [
                 'place_id' => $item['place_id'],
                 'key' => $key,
-                'fields' => 'geometry/location,formatted_address,name,address_components'
+                'fields' => 'geometry/location,formatted_address,name,address_components',
             ])->json();
 
             $place = $details['result'] ?? [];

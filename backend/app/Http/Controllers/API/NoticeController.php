@@ -8,7 +8,6 @@ use App\Http\Resources\NoticeResource;
 use App\Models\Notice;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class NoticeController extends Controller
 {

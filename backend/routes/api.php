@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\AdminOrganizationController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\NoticeController;
 use App\Http\Controllers\API\UserController;
@@ -25,6 +26,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/notices/{notice}', [VolunteerNoticeController::class, 'show']);
         Route::post('/notices/{notice}/join', [VolunteerNoticeController::class, 'join']);
         Route::post('/notices/{notice}/leave', [VolunteerNoticeController::class, 'leave']);
+        Route::get('/notices-in-range', [VolunteerNoticeController::class, 'noticesInRange']);
+    });
+
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/organizations', [AdminOrganizationController::class, 'index']);
+        Route::post('/organization/{organization}/verify', [AdminOrganizationController::class, 'verifyOrganization']);
     });
 });
 

@@ -30,6 +30,7 @@ class NoticeResource extends JsonResource
                 'area_of_activity' => $this->organization->area_of_activity,
                 'contact_email' => $this->organization->contact_email,
                 'address' => $this->organization->address,
+                'verified' => $this->organization->verified,
                 'logo_url' => $this->organization->logo_url ? Storage::url($this->organization->logo_url) : null,
             ] : null,
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),

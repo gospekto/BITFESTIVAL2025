@@ -63,4 +63,30 @@ class VolunteerNoticeController extends Controller
             'notice' => new NoticeResource($notice),
         ]);
     }
+
+    public function noticesInRange(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $lat = $request->input('latitude', $user->latitude);
+        $lng = $request->input('longitude', $user->longitude);
+        $radius = $request->input('radius', 10);
+        $notices = Notice::select('*')
+            ->selectRaw('
+            (6371 * acos(
+                cos(radians(?)) *
+                cos(radians(latitude)) *
+                cos(radians(longitude) - radians(?)) +
+                sin(radians(?)) *
+                sin(radians(latitude))
+            )) AS distance
+        ', [$lat, $lng, $lat])
+            ->having('distance', '<=', $radius)
+            ->orderBy('distance')
+            ->get();
+
+        return response()->json([
+            'notices' => NoticeResource::collection($notices),
+        ]);
+    }
 }
