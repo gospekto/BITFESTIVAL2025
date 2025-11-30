@@ -13,12 +13,13 @@ import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import ActivityRadarMap from "../components/ActivityRadarMap";
+import api from "../axios";
 
 
 export default function DashboardPage() {
   const menuRef = useRef();
   const navigate = useNavigate();
-
+  
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
       
@@ -188,8 +189,11 @@ export default function DashboardPage() {
                   12:00 - 16:00, osiedlowy market
                 </p>
               </div>
-              <button className="mt-2 text-[11px] text-accentBlue hover:text-accentBlue/80">
-                Pokaż cały kalendarz
+              <button
+                onClick={() => navigate("/profile#my-events")}
+                className="mt-2 text-[11px] text-accentBlue hover:text-accentBlue/80"
+              >
+               Pokaż cały kalendarz
               </button>
             </div>
           </section>

@@ -14,7 +14,7 @@ class VolunteerNoticeController extends Controller
 {
     public function allNotices(Request $request): JsonResponse
     {
-        $notices = Notice::withCount('users')->get();
+        $notices = Notice::with('users')->withCount('users')->get();
 
         return response()->json([
             'notices' => NoticeResource::collection($notices),
