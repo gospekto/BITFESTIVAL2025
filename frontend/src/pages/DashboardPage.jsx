@@ -35,13 +35,9 @@ export default function DashboardPage() {
                   Pomoc w Twojej okolicy
                 </h2>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-                  Zobacz miejsca, gdzie potrzebna jest pomoc, oraz wolontariuszy w terenie.
+                  Zobacz miejsca, gdzie potrzebna jest pomoc.
                 </p>
               </div>
-              <button className="inline-flex items-center gap-1 rounded-full bg-slate-100 dark:bg-slate-800 px-3 py-1 text-[11px] text-slate-600 dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-700/80 transition">
-                <FiCompass className="text-xs" />
-                Użyj mojej lokalizacji
-              </button>
             </div>
 
             <ActivityRadarMap rangeKm={15} />
