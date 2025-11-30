@@ -39,6 +39,7 @@ export default function NoticeDetailsPage() {
         setLoading(true);
         const res = await axios.get(`/notices/${id}`);
         setNotice(res.data.notice);
+        console.log(res.data.notice);
       } catch (err) {
         setError("Nie udało się pobrać ogłoszenia.");
       } finally {

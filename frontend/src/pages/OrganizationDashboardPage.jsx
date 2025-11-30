@@ -78,14 +78,22 @@ export default function OrganizationDashboardPage() {
                 Zarządzaj akcjami i publikacjami swojej organizacji.
               </p>
             </div>
-
-            <button
-              onClick={() => navigate("/new-ad")}
-              className="inline-flex items-center gap-2 bg-accentBlue text-white px-4 py-2 rounded-2xl text-sm font-medium shadow-soft hover:bg-accentBlue/90 transition"
-            >
-              <FiPlus className="text-sm" />
-              Dodaj ogłoszenie
-            </button>
+            
+            <div className="flex align-middle justify-center gap-12">
+              <button
+                onClick={() => navigate("/new-ad")}
+                className="inline-flex items-center gap-2 bg-accentBlue text-white px-4 py-2 rounded-2xl text-sm font-medium shadow-soft hover:bg-accentBlue/90 transition"
+              >
+                <FiPlus className="text-sm" />
+                Dodaj ogłoszenie
+              </button>
+              <button
+                onClick={() => navigate("/feed")}
+                className="inline-flex items-center gap-2 bg-accentBlue text-white px-4 py-2 rounded-2xl text-sm font-medium shadow-soft hover:bg-accentBlue/90 transition"
+              >
+                Zobacz wszystkie ogłoszenia
+              </button>
+            </div>
           </div>
 
           {loading ? (
