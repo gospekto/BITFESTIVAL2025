@@ -22,7 +22,7 @@ export default function HomePage() {
               <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mb-5 max-w-xl">
                 Helpi to nowoczesna aplikacja internetowa, która automatyzuje
                 cały proces współpracy – od publikacji zleceń, przez
-                dopasowanie wolontariuszy, aż po raportowanie wykonanych działań.
+                dopasowanie wolontariuszy.
                 Mniej Excela, więcej realnej pomocy.
               </p>
 
@@ -186,8 +186,7 @@ export default function HomePage() {
                 Inteligentne wyszukiwanie
               </h3>
               <p className="text-xs text-slate-600 dark:text-slate-400">
-                Filtruj zlecenia i wolontariuszy po lokalizacji, dostępności, kompetencjach,
-                typie akcji, czasie trwania czy trybie (online/offline).
+                Filtruj zlecenia i wolontariuszy po lokalizacji, dostępności.
               </p>
             </div>
 
@@ -232,17 +231,14 @@ export default function HomePage() {
               zweryfikowane organizacje pozarządowe, fundacje, stowarzyszenia oraz
               lokalne inicjatywy z zaangażowanymi wolontariuszami. Nasza aplikacja
               internetowa upraszcza cały proces współpracy: od publikowania
-              ogłoszeń wolontariackich, przez automatyczne przydzielanie zadań,
-              aż po monitorowanie postępów i raportowanie liczby godzin.
+              ogłoszeń wolontariackich do przydzielania zadań.
             </p>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
               Dzięki Helpi organizacje mogą w jednym miejscu
               <strong> szukać wolontariuszy</strong>, zarządzać zgłoszeniami, tworzyć
               cykliczne projekty oraz komunikować się z zespołem. Wolontariusze
               zyskują wygodny panel, w którym mogą
-              <strong> wyszukiwać zlecenia wolontariackie</strong> dopasowane do
-              ich zainteresowań, kompetencji i dostępności – zarówno w formule
-              stacjonarnej, jak i zdalnej.
+              <strong> wyszukiwać zlecenia wolontariackie</strong>.
             </p>
             <p className="text-sm text-slate-600 dark:text-slate-400">
               Jeśli prowadzisz NGO, fundację, organizację społeczną lub chcesz
