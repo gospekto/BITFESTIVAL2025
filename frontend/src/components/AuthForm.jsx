@@ -138,7 +138,11 @@ export default function AuthForm() {
       if (isLogin) {
         res = await login(email, password);
         setApiSuccess(`Zalogowano jako ${res.email}`);
-        navigate("/dashboard");
+        if(res.role==="organizer") {
+          navigate("/organization-dashboard")
+        } else {
+          navigate("/dashboard");
+        }
       } else {
         const isOrganizer = role === "organization";
 
