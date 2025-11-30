@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -24,7 +25,7 @@ class UserController extends Controller
         $fields = $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'surname' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|string|email|unique:users,email,'.$user->id,
+            'email' => 'sometimes|required|string|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|confirmed|min:6',
             'address' => 'required|string|max:255',
             'latitude' => 'required|string',
