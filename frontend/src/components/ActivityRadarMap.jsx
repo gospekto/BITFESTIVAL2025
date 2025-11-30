@@ -19,6 +19,18 @@ const categoryIcons = {
   volunteer: L.icon({ ...defaultIcon, iconUrl: "/icons/volunteer.png" }),
 };
 
+const userIcon = L.icon({
+  iconUrl: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+  iconSize: [32, 32],
+  iconAnchor: [16, 32]
+});
+
+const noticeIcon = L.icon({
+  iconUrl: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+  iconSize: [32, 32],
+  iconAnchor: [16, 32]
+});
+
 export default function ActivityRadarMap({ rangeKm = 15 }) {
   const { user } = useAuth();
   const [notices, setNotices] = useState([]);
@@ -63,7 +75,7 @@ export default function ActivityRadarMap({ rangeKm = 15 }) {
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
         {/* Twoja lokalizacja */}
-        <Marker position={center} icon={defaultIcon}>
+        <Marker position={center} icon={userIcon}>
           <Popup>Twoja lokalizacja</Popup>
         </Marker>
 
@@ -76,7 +88,7 @@ export default function ActivityRadarMap({ rangeKm = 15 }) {
           const icon = categoryIcons[notice.category] || defaultIcon;
 
           return (
-            <Marker key={notice.id} position={[lat, lng]} icon={defaultIcon}>
+            <Marker key={notice.id} position={[lat, lng]} icon={noticeIcon}>
               <Popup>
                 <div className="flex flex-col gap-1">
                   <strong>{notice.title}</strong>

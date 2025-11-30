@@ -77,6 +77,12 @@ export default function UserEvents() {
     
   // na wszelki wypadek jeszcze raz pilnujemy tablicy
   const safeEvents = Array.isArray(events) ? events : [];
+
+    function hasEventsOnDay(date) {
+    const dayStr = formatDateLocal(date);
+    return safeEvents.some(e => e.date === dayStr);
+  }
+  
   const eventsForSelectedDay = safeEvents.filter(
     e => e.date === selectedDateStr
   );
@@ -165,7 +171,7 @@ export default function UserEvents() {
                   key={day.toISOString()}
                   onClick={() => setSelectedDate(day)}
                   className={[
-                    "aspect-square rounded-2xl border text-center flex items-center justify-center transition",
+                    "relative aspect-square rounded-2xl border text-center flex items-center justify-center transition",
                     isSameDay(day, selectedDate)
                       ? "bg-accentBlue text-white border-accentBlue"
                       : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-accentBlue/70",
@@ -175,6 +181,10 @@ export default function UserEvents() {
                   ].join(" ")}
                 >
                   {day.getDate()}
+
+                  {hasEventsOnDay(day) && (
+                    <span className="absolute bottom-1 h-1.5 w-1.5 rounded-full bg-accentGreen"></span>
+                  )}
                 </button>
               ) : (
                 <div key={`empty-${idx}`} />

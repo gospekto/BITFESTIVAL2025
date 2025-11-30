@@ -75,9 +75,8 @@ export default function NoticeDetailsPage() {
       </div>
     );
 
-  const [lat, lng] = notice.location
-    ? notice.location.split(",").map((v) => parseFloat(v.trim()))
-    : [null, null];
+  const lat = notice.latitude;
+  const lng = notice.longitude;
 
   const formattedDate = notice.date
     ? new Date(notice.date).toLocaleDateString("pl-PL", {
@@ -99,6 +98,12 @@ export default function NoticeDetailsPage() {
     user?.id &&
     Array.isArray(notice.users) &&
     notice.users.some((u) => String(u.id) === String(user.id))
+  );
+  
+  const isMyNotice = Boolean(
+    user?.organization &&
+    notice?.organization.id && 
+    user.organization.id === notice.organization.id
   );
   
   const capacityPercent =
@@ -291,23 +296,28 @@ export default function NoticeDetailsPage() {
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-4">
               <button
+                disabled={user.role === "organizer"}
+                onClick={isJoined ? handleRemoveFromNotice : handleAddToNotice}
                 className={
                   "inline-flex items-center justify-center px-6 py-2.5 rounded-2xl text-xl font-semibold w-full sm:w-auto transition " +
-                  (!user
-                    ? "bg-accentGreen/90 text-white"
-                    : isJoined
-                      ? "bg-accentOrange/90 hover:bg-accentOrange text-white"
-                      : "bg-accentGreen/90 hover:bg-accentGreen text-white")
+                  (user.role === "organizer"
+                    ? "bg-slate-400 text-white cursor-not-allowed" 
+                    : !user
+                      ? "bg-accentGreen/90 text-white"
+                      : isJoined
+                        ? "bg-accentOrange/90 hover:bg-accentOrange text-white"
+                        : "bg-accentGreen/90 hover:bg-accentGreen text-white")
                 }
-                onClick={isJoined ? handleRemoveFromNotice : handleAddToNotice}
-                disabled={!user}
               >
-                {!user
-                  ? "Zaloguj się, aby dołączyć"
-                  : isJoined
-                    ? "Zrezygnuj z udziału"
-                    : "Zgłoś się do ogłoszenia"}
+                {user.role === "organizer"
+                  ? "Tylko wolontariusze mogą dołączyć"
+                  : !user
+                    ? "Zaloguj się, aby dołączyć"
+                    : isJoined
+                      ? "Zrezygnuj z udziału"
+                      : "Zgłoś się do ogłoszenia"}
               </button>
+
               <button
                 onClick={handleSupportFinancially}
                 className="inline-flex items-center justify-center px-6 py-2.5 rounded-2xl text-xl font-semibold bg-accentBlue/90 hover:bg-accentBlue text-white w-full sm:w-auto"
@@ -315,6 +325,35 @@ export default function NoticeDetailsPage() {
                 Wesprzyj finansowo
               </button>
             </div>
+            
+            {isMyNotice &&
+              Array.isArray(notice.users) &&
+              notice.users.length > 0 && (
+                <div className="mt-6">
+                  <h2 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                    <FiUsers className="text-accentGreen" />
+                    Zapisani uczestnicy
+                  </h2>
+            
+                  <ul className="space-y-2">
+                    {notice.users.map((u) => (
+                      <li
+                        key={u.id}
+                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/60 px-3 py-2.5"
+                      >
+                        <div>
+                          <p className="text-sm font-medium">
+                            {u.name} {u.surname}
+                          </p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
+                            {u.email}
+                          </p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+            )}
           </div>
         </div>
       </div>
