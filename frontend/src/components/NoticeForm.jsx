@@ -12,6 +12,7 @@ import {
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import axios from '../axios';
+import VolunteerMap from "./VolunteerMap";
 
 const markerIcon = new L.Icon({
   iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
@@ -22,11 +23,9 @@ const markerIcon = new L.Icon({
   iconAnchor: [12, 41],
 });
 
-
 async function createNotice(notice) {
   try {
     const formData = new FormData();
-
     formData.append("title", notice.title);
     formData.append("category", notice.category);
     formData.append("date", notice.date);
@@ -37,30 +36,21 @@ async function createNotice(notice) {
     if (notice.max_people !== null && notice.max_people !== undefined) {
       formData.append("max_people", String(notice.max_people));
     }
-
     if (notice.imageFile) {
       formData.append("image", notice.imageFile);
     }
-    
     const res = await axios.post("/notices", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
+      headers: { "Content-Type": "multipart/form-data" },
     });
-
-    return {
-      status: "ok",
-      notice: res.data,
-    };
+    return { status: "ok", notice: res.data };
   } catch (error) {
     if (error.response && error.response.status === 422) {
       const errors = error.response.data.errors || {};
       const messages = Object.values(errors).flat();
-      throw new Error(messages[0] || "Wystąpił błąd walidacji formularza.");
+      throw new Error(messages[0] || "Błąd walidacji formularza.");
     }
-
     console.error("Błąd zapisu ogłoszenia:", error);
-    throw new Error("Nie udało się dodać ogłoszenia. Spróbuj ponownie później.");
+    throw new Error("Nie udało się dodać ogłoszenia.");
   }
 }
 
@@ -81,18 +71,16 @@ export default function NoticeForm({ onNoticeCreated }) {
   const [category, setCategory] = useState("");
   const [date, setDate] = useState("");
   const [description, setDescription] = useState("");
-
   const [locationCoords, setLocationCoords] = useState(null);
   const [isMapReady, setIsMapReady] = useState(false);
-
   const [maxPeople, setMaxPeople] = useState("");
-
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
-
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [apiError, setApiError] = useState("");
   const [apiSuccess, setApiSuccess] = useState("");
+  const [noticeCreated, setNoticeCreated] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
@@ -104,8 +92,7 @@ export default function NoticeForm({ onNoticeCreated }) {
     }
     if (imagePreview) URL.revokeObjectURL(imagePreview);
     setImageFile(file);
-    const url = URL.createObjectURL(file);
-    setImagePreview(url);
+    setImagePreview(URL.createObjectURL(file));
   };
 
   const handleRemoveImage = () => {
@@ -116,13 +103,16 @@ export default function NoticeForm({ onNoticeCreated }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!locationCoords) {
+      setApiError("Wybierz lokalizację na mapie.");
+      return;
+    }
+
     setApiError("");
     setApiSuccess("");
     setIsSubmitting(true);
-    
-    const locationPayload = locationCoords ?
-      `${locationCoords.lat} ${locationCoords.lng}` :
-      "Nieznana lokalizacja";
+
+    const locationPayload = `${locationCoords.lat} ${locationCoords.lng}`;
 
     const noticePayload = {
       title,
@@ -132,17 +122,18 @@ export default function NoticeForm({ onNoticeCreated }) {
       location: locationPayload,
       latitude: locationCoords.lat,
       longitude: locationCoords.lng,
-      imageFile: imageFile|| null,
+      imageFile: imageFile || null,
       max_people: maxPeople ? Number(maxPeople) : null,
     };
 
     try {
       const res = await createNotice(noticePayload);
       setApiSuccess("Ogłoszenie zostało dodane.");
-
+      setNoticeCreated(res.notice);
+      setIsModalOpen(true); // otwórz modal z mapą
       onNoticeCreated && onNoticeCreated(res.notice);
 
-      // reset
+      // reset formularza
       setTitle("");
       setCategory("");
       setDate("");
@@ -153,15 +144,14 @@ export default function NoticeForm({ onNoticeCreated }) {
       if (imagePreview) URL.revokeObjectURL(imagePreview);
       setImagePreview("");
     } catch (err) {
-      setApiError(
-        err.message || "Coś poszło nie tak przy dodawaniu ogłoszenia."
-      );
+      setApiError(err.message || "Błąd dodawania ogłoszenia.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
+    <>
     <div
       className="w-full 
                  bg-white dark:bg-slate-900 
@@ -486,5 +476,33 @@ export default function NoticeForm({ onNoticeCreated }) {
         </div>
       </form>
     </div>
+      {isModalOpen && noticeCreated && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onClick={() => setIsModalOpen(false)}
+        >
+          <div
+            className="bg-white dark:bg-slate-900 rounded-2xl w-[90%] max-w-3xl p-6 relative"
+            onClick={(e) => e.stopPropagation()} // zapobiega zamknięciu przy kliknięciu w treść
+          >
+            <button
+              className="absolute top-3 right-3 text-slate-600 dark:text-slate-400 hover:text-red-500"
+              onClick={() => setIsModalOpen(false)}
+            >
+              <FiX size={20} />
+            </button>
+            <h2 className="text-lg font-semibold mb-4 text-slate-900 dark:text-white">
+              Wolontariusze w pobliżu
+            </h2>
+            <div className="h-96 w-full">
+              <VolunteerMap
+                latitude={noticeCreated.latitude}
+                longitude={noticeCreated.longitude}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    </> 
   );
 }
