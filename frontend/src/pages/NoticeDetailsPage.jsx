@@ -10,6 +10,7 @@ import {
 import PaymentModal from "../components/PaymentModal";
 import { useEffect, useState } from "react";
 import axios from "../axios";
+import { useAuth } from '../context/AuthContext';
 
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
@@ -28,6 +29,7 @@ export default function NoticeDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [openPaymentModal, setOpenPaymentModal] = useState(false);
+  const { user } = useAuth();
 
   const handleSupportFinancially = () => setOpenPaymentModal(true);
 
@@ -37,6 +39,8 @@ export default function NoticeDetailsPage() {
         setLoading(true);
         const res = await axios.get(`/notices/${id}`);
         setNotice(res.data.notice);
+        console.log(res.data.notice);
+        console.log(user);
       } catch (err) {
         setError("Nie udało się pobrać ogłoszenia.");
       } finally {
@@ -73,7 +77,6 @@ export default function NoticeDetailsPage() {
       </div>
     );
 
-  // ---- MAPA – parsowanie "50.050085,19.160156"
   const [lat, lng] = notice.location
     ? notice.location.split(",").map((v) => parseFloat(v.trim()))
     : [null, null];
@@ -93,6 +96,37 @@ export default function NoticeDetailsPage() {
           0
         )
       : null;
+  
+  const isJoined = Boolean(
+    user?.user.id &&
+    Array.isArray(notice.users) &&
+    notice.users.some((u) => String(u.id) === String(user.user.id))
+  );
+  
+  const capacityPercent =
+    typeof notice.max_people === "number" && notice.max_people > 0
+      ? Math.min((notice.registered_users_count / notice.max_people) * 100, 100)
+      : null;
+
+  const handleAddToNotice = async () => {
+      try {
+        const res = await axios.post(`/notices/${id}/join`);
+        const refreshNotice = await axios.get(`/notices/${id}`);
+        setNotice(refreshNotice.data.notice);
+      } catch(error) {
+        console.log(error);
+      }
+  }
+  
+  const handleRemoveFromNotice = async () => {
+      try {
+        const res = await axios.post(`/notices/${id}/leave`);
+        const refreshNotice = await axios.get(`/notices/${id}`);
+        setNotice(refreshNotice.data.notice);
+      } catch(error) {
+        console.log(error);
+      }
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
@@ -104,12 +138,6 @@ export default function NoticeDetailsPage() {
           >
             <FiArrowLeft className="text-xs" /> Wróć
           </button>
-
-          {notice.category && (
-            <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] uppercase tracking-wide bg-accentBlue/10 text-accentBlue">
-              {notice.category}
-            </span>
-          )}
         </div>
 
         <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-soft overflow-hidden">
@@ -211,6 +239,43 @@ export default function NoticeDetailsPage() {
                 {notice.description}
               </p>
             </div>
+            
+            {(typeof notice.max_people === "number" || notice.registered_users_count > 0) && (
+              <div className="my-4">
+                <div className="flex items-center justify-between text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">
+                  <div className="inline-flex items-center gap-1.5">
+                    <FiUsers className="text-accentGreen" />
+                    <span>
+                      {notice.registered_users_count} zgłoszeń
+                      {typeof max_people === "number" && ` / ${notice.max_people} miejsc`}
+                    </span>
+                  </div>
+                  {spotsLeft !== null && (
+                    <span
+                      className={
+                        "text-[10px] font-medium " +
+                        (spotsLeft === 0
+                          ? "text-accentOrange"
+                          : "text-accentGreen")
+                      }
+                    >
+                      {spotsLeft === 0
+                        ? "Brak wolnych miejsc"
+                        : `Zostało ${spotsLeft} miejsc`}
+                    </span>
+                  )}
+                </div>
+    
+                {capacityPercent !== null && (
+                  <div className="h-1.5 w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-accentGreen via-accentBlue to-accentOrange transition-all"
+                      style={{ width: `${capacityPercent}%` }}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Organizacja */}
             {notice.organization && (
@@ -226,10 +291,24 @@ export default function NoticeDetailsPage() {
               </div>
             )}
 
-            {/* Przyciski */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-4">
-              <button className="inline-flex items-center justify-center px-6 py-2.5 rounded-2xl text-xl font-semibold bg-accentGreen/90 hover:bg-accentGreen text-white w-full sm:w-auto">
-                Zgłoś się do ogłoszenia
+              <button
+                className={
+                  "inline-flex items-center justify-center px-6 py-2.5 rounded-2xl text-xl font-semibold w-full sm:w-auto transition " +
+                  (!user
+                    ? "bg-accentGreen/90 text-white"
+                    : isJoined
+                      ? "bg-accentOrange/90 hover:bg-accentOrange text-white"
+                      : "bg-accentGreen/90 hover:bg-accentGreen text-white")
+                }
+                onClick={isJoined ? handleRemoveFromNotice : handleAddToNotice}
+                disabled={!user}
+              >
+                {!user
+                  ? "Zaloguj się, aby dołączyć"
+                  : isJoined
+                    ? "Zrezygnuj z udziału"
+                    : "Zgłoś się do ogłoszenia"}
               </button>
               <button
                 onClick={handleSupportFinancially}

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\InvitationResource;
 use App\Http\Resources\NoticeResource;
 use App\Models\Invitation;
 use App\Models\Notice;
@@ -60,6 +61,7 @@ class VolunteerNoticeController extends Controller
 
     public function show(Request $request, Notice $notice): JsonResponse
     {
+        $notice->load('users')->loadCount('users');
         return response()->json([
             'notice' => new NoticeResource($notice),
         ]);
@@ -91,17 +93,20 @@ class VolunteerNoticeController extends Controller
         ]);
     }
 
+
     public function invitations(Request $request): JsonResponse
     {
         $user = $request->user();
 
         $invitations = $user->invitations()
-            ->with('notice.users')
-            ->withCount('notice.users')
+            ->with(['notice' => function ($query) {
+                $query->withCount('users');
+            }])
             ->get();
 
+
         return response()->json([
-            'invitations' => $invitations,
+            'invitations' => InvitationResource::collection($invitations),
         ]);
     }
 
