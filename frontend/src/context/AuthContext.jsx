@@ -12,8 +12,9 @@ export const AuthProvider = ({ children }) => {
   // ---- inicjalizacja usera przy starcie aplikacji ----
   const init = async () => {
     try {
-      const res = await api.get("/user"); // endpoint chroniony tokenem
+      const res = await api.get("/user");
       setUser(res.data);
+      console.log(res.data);
     } catch (err) {
       console.log("Brak aktywnego użytkownika lub token wygasł");
       setUser(null);
@@ -78,6 +79,7 @@ export const AuthProvider = ({ children }) => {
     logout,
     isLoggedIn: !!user,
     api, // eksportujemy instancję Axios
+    init,
   };
 
   return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
