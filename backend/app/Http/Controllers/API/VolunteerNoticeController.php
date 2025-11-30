@@ -60,7 +60,7 @@ class VolunteerNoticeController extends Controller
 
     public function show(Request $request, Notice $notice): JsonResponse
     {
-        $notice->with('users')->loadCount('users');
+        $notice->load('users')->loadCount('users');
         return response()->json([
             'notice' => new NoticeResource($notice),
         ]);
