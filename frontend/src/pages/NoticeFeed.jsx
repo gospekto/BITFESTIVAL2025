@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import NoticeCard from "../components/NoticeCard";
-import { Link } from "react-router-dom";
 import { FiArrowLeft } from "react-icons/fi";
 import api from "../axios";
 import { useNavigate } from "react-router-dom";
@@ -44,24 +43,20 @@ export default function NoticesFeed() {
 
       <h1 className="text-center w-full text-2xl font-bold">Ogłoszenia</h1>
 
-      {/* LOADING */}
       {loading && (
         <p className="text-center text-slate-500">Ładowanie ogłoszeń...</p>
       )}
 
-      {/* ERROR */}
       {error && (
         <div className="text-center text-red-500 text-sm">{error}</div>
       )}
 
-      {/* EMPTY */}
       {!loading && notices.length === 0 && (
         <p className="text-center text-slate-400 text-sm">
           Brak dostępnych ogłoszeń.
         </p>
       )}
 
-      {/* LISTA OGŁOSZEŃ */}
       {notices.map((notice) => (
         <NoticeCard key={notice.id} notice={notice} />
       ))}
