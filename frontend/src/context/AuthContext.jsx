@@ -13,8 +13,7 @@ export const AuthProvider = ({ children }) => {
   const init = async () => {
     try {
       const res = await api.get("/user");
-      setUser(res.data);
-      console.log(res.data);
+      setUser(res.data.user);
     } catch (err) {
       console.log("Brak aktywnego użytkownika lub token wygasł");
       setUser(null);

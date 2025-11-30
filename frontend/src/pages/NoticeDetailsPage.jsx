@@ -98,9 +98,9 @@ export default function NoticeDetailsPage() {
       : null;
   
   const isJoined = Boolean(
-    user?.user.id &&
+    user?.id &&
     Array.isArray(notice.users) &&
-    notice.users.some((u) => String(u.id) === String(user.user.id))
+    notice.users.some((u) => String(u.id) === String(user.id))
   );
   
   const capacityPercent =
