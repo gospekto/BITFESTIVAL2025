@@ -12,6 +12,7 @@ import {
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import ActivityRadarMap from "../components/ActivityRadarMap";
 
 
 export default function DashboardPage() {
@@ -42,41 +43,8 @@ export default function DashboardPage() {
               </button>
             </div>
 
-            <div className="relative rounded-2xl bg-gradient-to-tr from-slate-900 via-slate-800 to-slate-900 h-64 sm:h-72 overflow-hidden">
-              <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_10%_20%,#38bdf8_0,transparent_50%),radial-gradient(circle_at_80%_0,#22c55e_0,transparent_55%),radial-gradient(circle_at_50%_90%,#f97316_0,transparent_55%)]" />
+            <ActivityRadarMap rangeKm={15} />
 
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="h-40 w-40 rounded-full border border-slate-600/60" />
-                <div className="h-56 w-56 rounded-full border border-slate-700/60" />
-                <div className="h-72 w-72 rounded-full border border-slate-800/80" />
-              </div>
-
-              <RadarPin x="22%" y="35%" label="Potrzebna pomoc" tone="orange" />
-              <RadarPin x="65%" y="25%" label="Aktywna akcja" tone="blue" />
-              <RadarPin x="45%" y="70%" label="Zgłoszona potrzeba" tone="green" />
-
-              <RadarPin x="32%" y="55%" label="Wolontariusz - Kasia" tone="volunteer" />
-              <RadarPin x="78%" y="60%" label="Wolontariusz - Michał" tone="volunteer" />
-
-              <div className="absolute left-3 bottom-3 flex flex-wrap gap-2 bg-slate-900/70 backdrop-blur rounded-2xl px-3 py-2 text-[10px] text-slate-200">
-                <div className="flex items-center gap-1">
-                  <span className="h-2 w-2 rounded-full bg-accentOrange" />
-                  <span>miejsca wymagające pomocy</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="h-2 w-2 rounded-full bg-accentBlue" />
-                  <span>aktywne akcje</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="h-2 w-2 rounded-full bg-accentGreen" />
-                  <span>zgłoszone potrzeby</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="h-2 w-2 rounded-full border border-accentGreen" />
-                  <span>wolontariusze</span>
-                </div>
-              </div>
-            </div>
           </section>
 
           <section className="flex flex-col gap-4">
