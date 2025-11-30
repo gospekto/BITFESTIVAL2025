@@ -8,6 +8,7 @@ use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\VolunteerController;
 use App\Http\Controllers\API\VolunteerNoticeController;
 use App\Http\Controllers\PlaceController;
+use App\Models\Organization;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -51,6 +52,8 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/test', function (Request $request) {
+    $organizations = Organization::with('users')->get();
+    dd($organizations);
     return response()->json([
         'status' => 'ok',
         'message' => 'API działa poprawnie',
