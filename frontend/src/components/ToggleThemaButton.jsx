@@ -19,7 +19,7 @@ function ToggleThemaButton() {
   return (
     <button
       onClick={() => setIsDark(!isDark)}
-      className="fixed bottom-20 right-20 p-2 rounded-md bg-gray-200 dark:bg-gray-700 transition-colors"
+      className="fixed bottom-8 right-8 p-2 rounded-md bg-gray-200 dark:bg-gray-700 transition-colors"
     >
       {isDark ? (
         <FaSun className="w-5 h-5 text-yellow-400" />
