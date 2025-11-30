@@ -34,6 +34,8 @@ class NoticeController extends Controller
             'date' => 'required|date',
             'description' => 'required|string',
             'location' => 'required|string|max:255',
+            'longitude' => 'required|decimal:10,6',
+            'latitude' => 'required|decimal:10,6',
             'image' => 'nullable|image|max:2048',
             'max_people' => 'required|integer|min:1',
         ]);
@@ -77,6 +79,8 @@ class NoticeController extends Controller
             'date' => 'sometimes|required|date',
             'description' => 'sometimes|required|string',
             'location' => 'sometimes|required|string|max:255',
+            'longitude' => 'required|decimal:10,6',
+            'latitude' => 'required|decimal:10,6',
             'image' => 'nullable|image|max:2048',
             'max_people' => 'sometimes|required|integer|min:1',
         ]);

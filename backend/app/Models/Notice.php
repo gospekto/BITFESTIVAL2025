@@ -18,6 +18,8 @@ class Notice extends Model
         'date',
         'description',
         'location',
+        'latitude',
+        'longitude',
         'image_path',
         'organization_id',
         'max_people',
