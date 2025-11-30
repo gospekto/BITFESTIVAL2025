@@ -127,4 +127,21 @@ class VolunteerNoticeController extends Controller
 
         return response()->json(['message' => 'Pomyślnie odrzucono zaproszenie.']);
     }
+
+    public function myUpcomingNotices(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $notices = Notice::where('date', '>=', now())
+            ->whereHas('users', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->orderBy('date', 'asc')
+            ->limit(3)
+            ->get();
+
+        return response()->json([
+            'notices' => NoticeResource::collection($notices),
+        ]);
+    }
 }

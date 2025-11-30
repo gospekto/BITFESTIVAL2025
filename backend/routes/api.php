@@ -16,24 +16,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [UserController::class, 'user']);
     Route::put('/user', [UserController::class, 'update']);
 
-    Route::middleware('role:organizer')->group(function () {
-        Route::get('/notices', [NoticeController::class, 'index']);
-        Route::get('/nearby-volunteers', [VolunteerController::class, 'nearbyVolunteers']);
-        Route::post('/notices/{notice}/invite/{volunteer}', [VolunteerController::class, 'inviteVolunteer']);
-        Route::post('/notices', [NoticeController::class, 'store']);
-        Route::put('/notices/{notice}', [NoticeController::class, 'update']);
-        Route::delete('/notices/{notice}', [NoticeController::class, 'destroy']);
-    });
+    Route::middleware('role:organizer')->group(function () {});
 
-    Route::middleware('role:volunteer')->group(function () {
-        Route::get('/my-notices', [VolunteerNoticeController::class, 'index']);
-        Route::post('/notices/{notice}/join', [VolunteerNoticeController::class, 'join']);
-        Route::post('/notices/{notice}/leave', [VolunteerNoticeController::class, 'leave']);
-        Route::get('/notices-in-range', [VolunteerNoticeController::class, 'noticesInRange']);
-        Route::get('/ivitations', [VolunteerNoticeController::class, 'invitations']);
-        Route::post('/ivitations/{invitation}/accept', [VolunteerNoticeController::class, 'acceptInvitation']);
-        Route::delete('/ivitations/{invitation}', [VolunteerNoticeController::class, 'declineInvitation']);
-    });
+    Route::middleware('role:volunteer')->group(function () {});
 
     Route::middleware('role:admin')->group(function () {
         Route::get('/admin-notices', [AdminNoticesController::class, 'index']);
@@ -44,6 +29,20 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/notices/{notice}', [VolunteerNoticeController::class, 'show']);
     Route::get('/all-notices', [VolunteerNoticeController::class, 'allNotices']);
+    Route::get('/my-notices', [VolunteerNoticeController::class, 'index']);
+    Route::get('/my-upcoming-notices', [VolunteerNoticeController::class, 'myUpcomingNotices']);
+    Route::post('/notices/{notice}/join', [VolunteerNoticeController::class, 'join']);
+    Route::post('/notices/{notice}/leave', [VolunteerNoticeController::class, 'leave']);
+    Route::get('/notices-in-range', [VolunteerNoticeController::class, 'noticesInRange']);
+    Route::get('/ivitations', [VolunteerNoticeController::class, 'invitations']);
+    Route::post('/ivitations/{invitation}/accept', [VolunteerNoticeController::class, 'acceptInvitation']);
+    Route::delete('/ivitations/{invitation}', [VolunteerNoticeController::class, 'declineInvitation']);
+    Route::get('/notices', [NoticeController::class, 'index']);
+    Route::get('/nearby-volunteers', [VolunteerController::class, 'nearbyVolunteers']);
+    Route::post('/notices/{notice}/invite/{volunteer}', [VolunteerController::class, 'inviteVolunteer']);
+    Route::post('/notices', [NoticeController::class, 'store']);
+    Route::put('/notices/{notice}', [NoticeController::class, 'update']);
+    Route::delete('/notices/{notice}', [NoticeController::class, 'destroy']);
 });
 
 Route::get('/search-places', [PlaceController::class, 'search']);
