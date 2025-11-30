@@ -45,7 +45,7 @@ export default function NavbarLogged() {
           <div className="flex flex-col">
             <span className="font-semibold">Helpi</span>
             <span className="text-[11px] uppercase tracking-wide text-slate-400 dark:text-slate-500">
-              Panel użytkownika
+              Panel {user.organization ? "organizacji" : "użytkownika"}
             </span>
           </div>
         </div>
@@ -82,7 +82,7 @@ export default function NavbarLogged() {
                   Cześć, {user?.name}
                 </span>
                 <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                  konto wolontariusza
+                  konto {user.organization ? "organizacji" : "wolontariusza"}
                 </span>
               </div>
             </button>
