@@ -52,11 +52,6 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/test', function (Request $request) {
-    $organizations = Organization::with('users')->get();
-    $organization = Organization::where('id', '019ad3a7-8343-71f9-a327-660e67fa0c2e')->update([
-        'name' => 'Schronisko Zwierzyniec',
-    ]);
-    dd($organizations);
     return response()->json([
         'status' => 'ok',
         'message' => 'API działa poprawnie',
