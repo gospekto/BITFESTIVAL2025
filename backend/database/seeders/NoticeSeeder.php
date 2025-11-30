@@ -29,7 +29,7 @@ class NoticeSeeder extends Seeder
             return;
         }
 
-        for ($i = 0; $i < 400; $i++) {
+        for ($i = 0; $i < 1; $i++) {
             $angle = fake()->randomFloat(6, 0, 2 * pi());
             $distance = fake()->randomFloat(6, 0, $radiusKm) / 111;
             $lat = $centerLat + $distance * cos($angle);
