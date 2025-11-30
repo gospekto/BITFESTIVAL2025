@@ -118,16 +118,13 @@ export default function NoticeForm({ onNoticeCreated }) {
     setApiSuccess("");
     setIsSubmitting(true);
 
-    const locationValue = locationCoords
-      ? `${locationCoords.lat},${locationCoords.lng}`
-      : "";
-
     const noticePayload = {
       title,
       category,
       date,
       description,
-      location: locationValue,
+      latitude: locationCoords.lat,
+      longitude: locationCoords.lng,
       imageFile: imageFile|| null,
       max_people: maxPeople ? Number(maxPeople) : null,
     };
