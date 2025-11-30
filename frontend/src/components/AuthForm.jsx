@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { FiMail, FiLock, FiUser } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import api from "../axios"; 
 
 export default function AuthForm() {
   const { login, register } = useAuth();
@@ -35,8 +36,6 @@ export default function AuthForm() {
   const [placeResults, setPlaceResults] = useState([]);
   const [isSearchingPlaces, setIsSearchingPlaces] = useState(false);
 
-  // baza API, bez końcowego /
-  const API_BASE_URL = "https://hackathon.drokgames.pl/api";
   const [logo, setLogo] = useState(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -47,49 +46,42 @@ export default function AuthForm() {
   const navigate = useNavigate();
 
   const handleAddressChange = async (e) => {
-  const value = e.target.value;
-  setAddress(value);
-  setLatitude("");
-  setLongitude("");
-  setPlaceResults([]);
+    const value = e.target.value;
+    setAddress(value);
+    setLatitude("");
+    setLongitude("");
+    setPlaceResults([]);
 
-  if (!value || value.length < 3) return;
+    if (!value || value.length < 3) return;
 
-  try {
-    setIsSearchingPlaces(true);
-    const url = `${API_BASE_URL}/search-places?search=${encodeURIComponent(
-      value
-    )}`;
-    console.log("Autocomplete URL:", url);
+    try {
+      setIsSearchingPlaces(true);
 
-    const resp = await fetch(url);
+      const resp = await api.get("/search-places", {
+        params: { search: value },
+      });
 
-    if (!resp.ok) {
-      console.error("Błąd odpowiedzi z search-places:", resp.status);
+      const data = resp.data;
+      console.log("Autocomplete wyniki:", data);
+
+      setPlaceResults(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Błąd podczas pobierania miejsc", error);
+    } finally {
       setIsSearchingPlaces(false);
-      return;
     }
+  };
 
-    const data = await resp.json();
-    console.log("Autocomplete wyniki:", data);
+  const handleSelectPlace = (place) => {
+    if (!place) return;
+    setAddress(place.address || place.name || "");
+    setLatitude(place.latitude || "");
+    setLongitude(place.longitude || "");
+    setPlaceResults([]);
+  };
 
-    setPlaceResults(Array.isArray(data) ? data : []);
-  } catch (error) {
-    console.error("Błąd podczas pobierania miejsc", error);
-  } finally {
-    setIsSearchingPlaces(false);
-  }
-};
-
-const handleSelectPlace = (place) => {
-  if (!place) return;
-  setAddress(place.address || place.name || "");
-  setLatitude(place.latitude || "");
-  setLongitude(place.longitude || "");
-  setPlaceResults([]);
-};
   const handleLogoChange = (e) => {
-    const file = e.target.files?.[0];
+    const file = e.target.files && e.target.files[0];
     if (!file) {
       setLogo(null);
       return;
@@ -105,7 +97,7 @@ const handleSelectPlace = (place) => {
     setLogo(file);
   };
 
-    const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setApiError("");
     setApiSuccess("");
@@ -150,20 +142,16 @@ const handleSelectPlace = (place) => {
       } else {
         const isOrganizer = role === "organization";
 
-        // lokalne zmienne na współrzędne
         let lat = latitude;
         let lng = longitude;
 
-        // jeśli jeszcze nie mamy współrzędnych, pobierz je z /search-places
         if (!lat || !lng) {
           try {
-                const resp = await fetch(
-                  `${API_BASE_URL}/search-places?search=${encodeURIComponent(
-                    address
-                  )}`
-                );
-            const data = await resp.json();
+            const resp = await api.get("/search-places", {
+              params: { search: address },
+            });
 
+            const data = resp.data;
             const first = data && data.length > 0 ? data[0] : null;
 
             if (!first || !first.latitude || !first.longitude) {
@@ -177,7 +165,6 @@ const handleSelectPlace = (place) => {
             lat = first.latitude;
             lng = first.longitude;
 
-            // opcjonalnie zapis do stanu, żeby mieć spójność
             setLatitude(lat);
             setLongitude(lng);
           } catch (err) {
@@ -198,7 +185,6 @@ const handleSelectPlace = (place) => {
         formData.append("password_confirmation", passwordConfirmation);
         formData.append("is_organizer", isOrganizer ? "1" : "0");
 
-        // wspólne pola adresowe
         formData.append("address", address);
         formData.append("latitude", lat);
         formData.append("longitude", lng);
@@ -211,13 +197,7 @@ const handleSelectPlace = (place) => {
             formData.append("logo", logo);
           }
         }
-        // // 
-        // console.log("Dane wysyłane do backendu:", {
-        //   address,
-        //   latitude: lat,
-        //   longitude: lng
-        // });
-        // // 
+
         res = await register(formData);
         setApiSuccess(`Konto utworzone dla ${res.email}`);
         navigate(isOrganizer ? "/organization-dashboard" : "/dashboard");
@@ -240,12 +220,17 @@ const handleSelectPlace = (place) => {
       }
     } catch (err) {
       const message =
-        err?.response?.data?.message || err.message || "Coś poszło nie tak.";
+        (err &&
+          err.response &&
+          err.response.data &&
+          err.response.data.message) ||
+        err.message ||
+        "Coś poszło nie tak.";
       setApiError(message);
     } finally {
       setIsSubmitting(false);
     }
-};
+  };
 
   return (
     <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-2xl shadow-soft border border-slate-200 dark:border-slate-800 p-6 sm:p-8 transition-colors">
@@ -370,7 +355,7 @@ const handleSelectPlace = (place) => {
                       value={areaOfActivity}
                       onChange={(e) => setAreaOfActivity(e.target.value)}
                       disabled={isSubmitting}
-                     className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-black"
+                      className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-black"
                     />
                   </div>
                 </div>
@@ -387,7 +372,7 @@ const handleSelectPlace = (place) => {
                       value={contactEmail}
                       onChange={(e) => setContactEmail(e.target.value)}
                       disabled={isSubmitting}
-                     className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-black"
+                      className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-black"
                     />
                   </div>
                 </div>
@@ -424,7 +409,7 @@ const handleSelectPlace = (place) => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   disabled={isSubmitting}
-                 className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-black"
+                  className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-black"
                 />
               </div>
             </div>
@@ -441,63 +426,62 @@ const handleSelectPlace = (place) => {
                   value={surname}
                   onChange={(e) => setSurname(e.target.value)}
                   disabled={isSubmitting}
-                 className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-black"
+                  className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-black"
                 />
               </div>
             </div>
           </>
         )}
 
-        
         {!isLogin && role && (
-                        <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
-                    Adres
-                  </label>
-                  <div className="flex flex-col rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 focus-within:border-accentBlue/70 focus-within:bg-white transition">
-                    <div className="flex items-center gap-2">
-                      <FiUser className="text-slate-400 text-sm" />
-                      <input
-                        type="text"
-                        placeholder="Ulica, miasto"
-                        value={address}
-                        onChange={handleAddressChange}
-                        disabled={isSubmitting}
-                        className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-black"
-                      />
-                    </div>
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+              Adres
+            </label>
+            <div className="flex flex-col rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 focus-within:border-accentBlue/70 focus-within:bg-white transition">
+              <div className="flex items-center gap-2">
+                <FiUser className="text-slate-400 text-sm" />
+                <input
+                  type="text"
+                  placeholder="Ulica, miasto"
+                  value={address}
+                  onChange={handleAddressChange}
+                  disabled={isSubmitting}
+                  className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-black"
+                />
+              </div>
 
-                    {isSearchingPlaces && (
-                      <p className="mt-1 text-[10px] text-slate-500">
-                        Szukam miejsc...
-                      </p>
-                    )}
+              {isSearchingPlaces && (
+                <p className="mt-1 text-[10px] text-slate-500">
+                  Szukam miejsc...
+                </p>
+              )}
 
-                    {placeResults.length > 0 && (
-                      <div className="mt-2 max-h-40 overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-soft text-xs">
-                        {placeResults.map((place, index) => (
-                          <button
-                            key={index}
-                            type="button"
-                            onClick={() => handleSelectPlace(place)}
-                            className="w-full text-left px-3 py-2 hover:bg-slate-100"
-                          >
-                            <div className="font-medium text-slate-700">
-                              {place.name}
-                            </div>
-                            <div className="text-[10px] text-slate-500">
-                              {place.address}
-                            </div>
-                          </button>
-                        ))}
+              {placeResults.length > 0 && (
+                <div className="mt-2 max-h-40 overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-soft text-xs">
+                  {placeResults.map((place, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => handleSelectPlace(place)}
+                      className="w-full text-left px-3 py-2 hover:bg-slate-100"
+                    >
+                      <div className="font-medium text-slate-700">
+                        {place.name}
                       </div>
-                    )}
-                  </div>
-                  <p className="text-[10px] text-slate-500 dark:text-slate-400">
-                    Wybierz adres z listy, wtedy współrzędne zapiszą się automatycznie.
-                  </p>
+                      <div className="text-[10px] text-slate-500">
+                        {place.address}
+                      </div>
+                    </button>
+                  ))}
                 </div>
               )}
+            </div>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400">
+              Wybierz adres z listy, wtedy współrzędne zapiszą się automatycznie.
+            </p>
+          </div>
+        )}
 
         <div className="space-y-1.5">
           <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
@@ -511,7 +495,7 @@ const handleSelectPlace = (place) => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={isSubmitting}
-             className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-black"
+              className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-black"
             />
           </div>
         </div>
@@ -528,7 +512,7 @@ const handleSelectPlace = (place) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={isSubmitting}
-             className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-black"
+              className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-black"
             />
           </div>
         </div>
@@ -546,7 +530,7 @@ const handleSelectPlace = (place) => {
                 value={passwordConfirmation}
                 onChange={(e) => setPasswordConfirmation(e.target.value)}
                 disabled={isSubmitting}
-               className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-black"
+                className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-black"
               />
             </div>
           </div>
