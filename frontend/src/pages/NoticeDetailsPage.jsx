@@ -10,6 +10,7 @@ import {
 import PaymentModal from "../components/PaymentModal";
 import { useEffect, useState } from "react";
 import axios from "../axios";
+import { useAuth } from '../context/AuthContext';
 
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
@@ -28,6 +29,7 @@ export default function NoticeDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [openPaymentModal, setOpenPaymentModal] = useState(false);
+  const { user } = useAuth();
 
   const handleSupportFinancially = () => setOpenPaymentModal(true);
 
@@ -37,6 +39,8 @@ export default function NoticeDetailsPage() {
         setLoading(true);
         const res = await axios.get(`/notices/${id}`);
         setNotice(res.data.notice);
+        console.log(res.data.notice);
+        console.log(user);
       } catch (err) {
         setError("Nie udało się pobrać ogłoszenia.");
       } finally {
@@ -73,7 +77,6 @@ export default function NoticeDetailsPage() {
       </div>
     );
 
-  // ---- MAPA – parsowanie "50.050085,19.160156"
   const [lat, lng] = notice.location
     ? notice.location.split(",").map((v) => parseFloat(v.trim()))
     : [null, null];
@@ -93,6 +96,40 @@ export default function NoticeDetailsPage() {
           0
         )
       : null;
+  
+  const isJoined = Boolean(
+    user?.user.id &&
+    Array.isArray(notice.users) &&
+    notice.users.some((u) => String(u.id) === String(user.user.id))
+  );
+  
+  console.log("notice.users:", notice.users);
+  console.log("current user.id:", user?.id);
+  console.log(
+    "ids in notice:",
+    Array.isArray(notice.users) ? notice.users.map(u => u.id) : null
+  );
+  console.log("isJoined:", isJoined);
+
+  const handleAddToNotice = async () => {
+      try {
+        const res = await axios.post(`/notices/${id}/join`);
+        const refreshNotice = await axios.get(`/notices/${id}`);
+        setNotice(refreshNotice.data.notice);
+      } catch(error) {
+        console.log(error);
+      }
+  }
+  
+  const handleRemoveFromNotice = async () => {
+      try {
+        const res = await axios.post(`/notices/${id}/leave`);
+        const refreshNotice = await axios.get(`/notices/${id}`);
+        setNotice(refreshNotice.data.notice);
+      } catch(error) {
+        console.log(error);
+      }
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
@@ -226,10 +263,24 @@ export default function NoticeDetailsPage() {
               </div>
             )}
 
-            {/* Przyciski */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-4">
-              <button className="inline-flex items-center justify-center px-6 py-2.5 rounded-2xl text-xl font-semibold bg-accentGreen/90 hover:bg-accentGreen text-white w-full sm:w-auto">
-                Zgłoś się do ogłoszenia
+              <button
+                className={
+                  "inline-flex items-center justify-center px-6 py-2.5 rounded-2xl text-xl font-semibold w-full sm:w-auto transition " +
+                  (!user
+                    ? "bg-accentGreen/90 text-white"
+                    : isJoined
+                      ? "bg-accentOrange/90 hover:bg-accentOrange text-white"
+                      : "bg-accentGreen/90 hover:bg-accentGreen text-white")
+                }
+                onClick={isJoined ? handleRemoveFromNotice : handleAddToNotice}
+                disabled={!user}
+              >
+                {!user
+                  ? "Zaloguj się, aby dołączyć"
+                  : isJoined
+                    ? "Zrezygnuj z udziału"
+                    : "Zgłoś się do ogłoszenia"}
               </button>
               <button
                 onClick={handleSupportFinancially}
