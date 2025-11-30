@@ -108,7 +108,7 @@ export default function ProfilePage() {
           Twój profil wolontariusza
         </h1>
 
-        <section className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 sm:p-6 shadow-sm">
+        <section className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 sm:p-6 shadow-sm my-4">
 
           <div className="flex items-center gap-3 mb-4">
             <div className="h-12 w-12 rounded-full bg-accentBlue/20 flex items-center justify-center text-accentBlue font-semibold">
@@ -134,13 +134,8 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span>Latitude</span>
-                  <span className="font-medium">{user.latitude ?? "-"}</span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span>Longitude</span>
-                  <span className="font-medium">{user.longitude ?? "-"}</span>
+                  <span>Lokalizacja:</span>
+                  <span className="font-medium">{user.latitude ?? "-"}, {user.longitude ?? "-"}</span>
                 </div>
               </div>
 
