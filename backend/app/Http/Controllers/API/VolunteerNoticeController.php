@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\InvitationResource;
 use App\Http\Resources\NoticeResource;
 use App\Models\Invitation;
 use App\Models\Notice;
@@ -105,7 +106,7 @@ class VolunteerNoticeController extends Controller
 
 
         return response()->json([
-            'invitations' => $invitations,
+            'invitations' => InvitationResource::collection($invitations),
         ]);
     }
 
