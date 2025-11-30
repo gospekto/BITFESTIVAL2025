@@ -7,6 +7,7 @@ use App\Http\Resources\UserResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -39,6 +40,9 @@ class UserController extends Controller
             'area_of_activity.required_if' => 'Pole obszar działalności jest wymagane gdy konto jest organizacją.',
             'contact_email.required_if' => 'Pole email kontaktowy jest wymagane gdy konto jest organizacją.',
         ]);
+
+        Log::info($request->all());
+        Log::info($fields);
 
         $user->update([
             'name' => $fields['name'] ?? $user->name,
