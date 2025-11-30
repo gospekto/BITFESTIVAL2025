@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { FiArrowLeft, FiEdit3 } from "react-icons/fi";
 import { Link } from "react-router-dom";
+import UserEvents from "../components/UserEvents.jsx";
 import axios from "../axios";
 import { useAuth } from "../context/AuthContext";
 
@@ -238,6 +239,7 @@ export default function ProfilePage() {
             </>
           )}
         </section>
+        <UserEvents />
       </main>
     </div>
   );
