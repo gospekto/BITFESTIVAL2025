@@ -14,6 +14,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await api.get("/user");
       setUser(res.data.user);
+      console.log(res.data);
     } catch (err) {
       console.log("Brak aktywnego użytkownika lub token wygasł");
       setUser(null);
