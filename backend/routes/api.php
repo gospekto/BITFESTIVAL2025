@@ -8,6 +8,7 @@ use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\VolunteerController;
 use App\Http\Controllers\API\VolunteerNoticeController;
 use App\Http\Controllers\PlaceController;
+use App\Models\Organization;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 

@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { FiArrowLeft, FiEdit3 } from "react-icons/fi";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import UserEvents from "../components/UserEvents.jsx";
 import axios from "../axios";
 import { useAuth } from "../context/AuthContext";
 
 export default function ProfilePage() {
   const { user, init } = useAuth();
+  const navigate = useNavigate();
   const [editing, setEditing] = useState(false);
 
   const [name, setName] = useState("");
@@ -96,16 +97,16 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
-        <Link
-          to="/dashboard"
+        <button
+          onClick={() => navigate(-1)}
           className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
         >
           <FiArrowLeft className="text-xs" />
           Wróć
-        </Link>
+        </button>
 
         <h1 className="text-xl sm:text-2xl font-semibold mb-4">
-          Twój profil wolontariusza
+          Twój profil
         </h1>
 
         <section className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 sm:p-6 shadow-sm my-4">
@@ -118,9 +119,6 @@ export default function ProfilePage() {
             <div>
               <p className="text-sm font-semibold">
                 {user.name} {user.surname}
-              </p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                konto wolontariusza
               </p>
             </div>
           </div>

@@ -41,9 +41,6 @@ class UserController extends Controller
             'contact_email.required_if' => 'Pole email kontaktowy jest wymagane gdy konto jest organizacją.',
         ]);
 
-        Log::info($request->all());
-        Log::info($fields);
-
         $user->update([
             'name' => $fields['name'] ?? $user->name,
             'surname' => $fields['surname'] ?? $user->surname,
