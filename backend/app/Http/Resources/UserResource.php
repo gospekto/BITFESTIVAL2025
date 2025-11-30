@@ -20,6 +20,9 @@ class UserResource extends JsonResource
             'name' => $this->name,
             'surname' => $this->surname,
             'email' => $this->email,
+            'longitude' => $this->longitude,
+            'latitude' => $this->latitude,
+            'address' => $this->address,
             'role' => $this->getRoleNames()->first(),
         ];
         if ($this->hasRole('organizer') && $organization = $this->organizations()->first()) {
@@ -28,7 +31,6 @@ class UserResource extends JsonResource
                 'organization_name' => $organization->name,
                 'area_of_activity' => $organization->area_of_activity,
                 'contact_email' => $organization->contact_email,
-                'address' => $organization->address,
                 'verified' => $organization->verified,
                 'logo_url' => $organization->logo_url ? Storage::url($organization->logo_url) : null,
             ];
