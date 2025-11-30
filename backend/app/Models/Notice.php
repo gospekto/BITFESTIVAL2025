@@ -18,6 +18,8 @@ class Notice extends Model
         'date',
         'description',
         'location',
+        'latitude',
+        'longitude',
         'image_path',
         'organization_id',
         'max_people',
@@ -28,6 +30,8 @@ class Notice extends Model
         return [
             'date' => 'date:Y-m-d H:i:s',
             'category' => Category::class,
+            'latitude' => 'float',
+            'longitude' => 'float',
         ];
     }
 

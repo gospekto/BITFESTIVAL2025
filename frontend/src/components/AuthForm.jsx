@@ -158,7 +158,7 @@ const handleSelectPlace = (place) => {
         if (!lat || !lng) {
           try {
                 const resp = await fetch(
-                  `https://hackathon.drokgames.pl/api/search-places?search=${encodeURIComponent(
+                  `${API_BASE_URL}/search-places?search=${encodeURIComponent(
                     address
                   )}`
                 );

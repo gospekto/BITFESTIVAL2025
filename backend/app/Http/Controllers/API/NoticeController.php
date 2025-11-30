@@ -8,6 +8,7 @@ use App\Http\Resources\NoticeResource;
 use App\Models\Notice;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class NoticeController extends Controller
 {
@@ -24,6 +25,7 @@ class NoticeController extends Controller
     public function store(Request $request): JsonResponse
     {
         $user = $request->user();
+        Log::info($request->all());
         $fields = $request->validate([
             'title' => 'required|string|max:255',
             'category' => ['required', 'string', function ($attribute, $value, $fail) {
@@ -34,6 +36,8 @@ class NoticeController extends Controller
             'date' => 'required|date',
             'description' => 'required|string',
             'location' => 'required|string|max:255',
+            'longitude' => 'required|numeric',
+            'latitude' => 'required|numeric',
             'image' => 'nullable|image|max:2048',
             'max_people' => 'required|integer|min:1',
         ]);
@@ -47,6 +51,8 @@ class NoticeController extends Controller
             'category' => $fields['category'],
             'date' => $fields['date'],
             'description' => $fields['description'],
+            'latitude' => $fields['latitude'],
+            'longitude' => $fields['longitude'],
             'location' => $fields['location'],
             'image_path' => $fields['image_path'] ?? null,
             'organization_id' => $user->organizations()->first()->id,
@@ -77,6 +83,8 @@ class NoticeController extends Controller
             'date' => 'sometimes|required|date',
             'description' => 'sometimes|required|string',
             'location' => 'sometimes|required|string|max:255',
+            'longitude' => 'required|decimal:10,6',
+            'latitude' => 'required|decimal:10,6',
             'image' => 'nullable|image|max:2048',
             'max_people' => 'sometimes|required|integer|min:1',
         ]);

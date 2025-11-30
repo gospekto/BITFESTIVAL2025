@@ -194,7 +194,7 @@ export default function NoticeDetailsPage() {
                   center={[lat, lng]}
                   zoom={14}
                   scrollWheelZoom={false}
-                  style={{ height: "300px", width: "100%" }}
+                  style={{ height: "300px", width: "100%" , zIndex: 0}}
                 >
                   <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                   <Marker position={[lat, lng]} icon={markerIcon}>

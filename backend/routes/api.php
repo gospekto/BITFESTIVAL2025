@@ -5,6 +5,7 @@ use App\Http\Controllers\API\AdminOrganizationController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\NoticeController;
 use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\API\VolunteerController;
 use App\Http\Controllers\API\VolunteerNoticeController;
 use App\Http\Controllers\PlaceController;
 use Illuminate\Http\Request;
@@ -17,18 +18,21 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::middleware('role:organizer')->group(function () {
         Route::get('/notices', [NoticeController::class, 'index']);
+        Route::get('/nearby-volunteers', [VolunteerController::class, 'nearbyVolunteers']);
+        Route::post('/notices/{notice}/invite/{volunteer}', [VolunteerController::class, 'inviteVolunteer']);
         Route::post('/notices', [NoticeController::class, 'store']);
         Route::put('/notices/{notice}', [NoticeController::class, 'update']);
         Route::delete('/notices/{notice}', [NoticeController::class, 'destroy']);
     });
 
     Route::middleware('role:volunteer')->group(function () {
-        Route::get('/all-notices', [VolunteerNoticeController::class, 'allNotices']);
         Route::get('/my-notices', [VolunteerNoticeController::class, 'index']);
-        Route::get('/notices/{notice}', [VolunteerNoticeController::class, 'show']);
         Route::post('/notices/{notice}/join', [VolunteerNoticeController::class, 'join']);
         Route::post('/notices/{notice}/leave', [VolunteerNoticeController::class, 'leave']);
         Route::get('/notices-in-range', [VolunteerNoticeController::class, 'noticesInRange']);
+        Route::get('/ivitations', [VolunteerNoticeController::class, 'invitations']);
+        Route::post('/ivitations/{invitation}/accept', [VolunteerNoticeController::class, 'acceptInvitation']);
+        Route::delete('/ivitations/{invitation}', [VolunteerNoticeController::class, 'declineInvitation']);
     });
 
     Route::middleware('role:admin')->group(function () {
@@ -37,6 +41,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/organizations', [AdminOrganizationController::class, 'index']);
         Route::post('/organization/{organization}/verify', [AdminOrganizationController::class, 'verifyOrganization']);
     });
+
+    Route::get('/notices/{notice}', [VolunteerNoticeController::class, 'show']);
+    Route::get('/all-notices', [VolunteerNoticeController::class, 'allNotices']);
 });
 
 Route::get('/search-places', [PlaceController::class, 'search']);

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\NoticeResource;
+use App\Models\Invitation;
 use App\Models\Notice;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -88,5 +89,37 @@ class VolunteerNoticeController extends Controller
         return response()->json([
             'notices' => NoticeResource::collection($notices),
         ]);
+    }
+
+    public function invitations(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $invitations = $user->invitations()
+            ->with('notice.users')
+            ->withCount('notice.users')
+            ->get();
+
+        return response()->json([
+            'invitations' => $invitations,
+        ]);
+    }
+
+    public function acceptInvitation(Request $request, Invitation $invitation): JsonResponse
+    {
+        $user = $request->user();
+
+        $invitation->notice->users()->attach($user->id);
+
+        $invitation->update(['accepted' => true]);
+
+        return response()->json(['message' => 'Pomyślnie dołączono do ogłoszenia.']);
+    }
+
+    public function declineInvitation(Request $request, Invitation $invitation): JsonResponse
+    {
+        $invitation->delete();
+
+        return response()->json(['message' => 'Pomyślnie odrzucono zaproszenie.']);
     }
 }

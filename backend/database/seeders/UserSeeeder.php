@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -38,6 +39,15 @@ class UserSeeeder extends Seeder
         ], [
             'password' => Hash::make('123'),
         ]);
+
+        $organization = Organization::updateOrCreate([
+            'name' => 'Organizacja',
+            'area_of_activity' => 'Obszar działalności',
+            'contact_email' => 'email kontaktowy',
+            'address' => 'Adres',
+            'verified' => true,
+        ]);
+        $user->organizations()->sync($organization->id);
         $user->assignRole('organizer');
     }
 }
