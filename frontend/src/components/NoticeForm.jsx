@@ -12,6 +12,7 @@ import {
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import axios from '../axios';
+import { useNavigate } from "react-router-dom";
 
 const markerIcon = new L.Icon({
   iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
@@ -93,6 +94,8 @@ export default function NoticeForm({ onNoticeCreated }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [apiError, setApiError] = useState("");
   const [apiSuccess, setApiSuccess] = useState("");
+  
+  const navigate = useNavigate();
 
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
@@ -169,6 +172,12 @@ export default function NoticeForm({ onNoticeCreated }) {
                  border-slate-200 dark:border-slate-800
                  p-6 sm:p-8 transition-colors"
     >
+      <button
+        onClick={() => navigate("/feed")}
+        className="px-3 py-1 my-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition"
+      >
+        Zobacz wszystkie ogłoszenia
+      </button>
       <div className="flex items-start justify-between gap-4 mb-6">
         <div>
           <div className="inline-flex items-center gap-2 rounded-full bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 px-2 py-1 mb-3 text-[11px] text-slate-500 dark:text-slate-400">
