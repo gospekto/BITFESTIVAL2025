@@ -2,10 +2,8 @@ import {
   FiPlus,
   FiMapPin,
   FiClock,
-  FiEdit2,
+  FiArrowLeft,
   FiTrash2,
-  FiUsers,
-  FiLayers
 } from "react-icons/fi";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -15,14 +13,15 @@ export default function OrganizationDashboardPage() {
   const navigate = useNavigate();
   const [ads, setAds] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [successMessage, setSuccessMessage] = useState(null);
 
   // pobranie ogłoszeń organizacji
   useEffect(() => {
     const loadAds = async () => {
       try {
-        const res = await axios.get("/organization/ads");
-        setAds(res.data || []);
-      } catch (err) {
+        const res = await axios.get("/notices");
+        setAds(res.data.notices || []);
+        } catch (err) {
         console.error("Błąd ładowania ogłoszeń:", err);
       } finally {
         setLoading(false);
@@ -31,6 +30,17 @@ export default function OrganizationDashboardPage() {
 
     loadAds();
   }, []);
+  
+  const handleDelete = async (id) => {
+     try {
+       await axios.delete(`/notices/${id}`);
+       setAds((prev) => prev.filter((ad) => ad.id !== id));
+       setSuccessMessage("Usunięto");
+       setTimeout(() => setSuccessMessage(null), 2000);
+     } catch (e) {
+       console.error("Błąd usuwania ogłoszenia:", e);
+     }
+   };
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-4 sm:p-6">
@@ -94,12 +104,24 @@ export default function OrganizationDashboardPage() {
           ) : (
             <div className="grid md:grid-cols-2 gap-4">
               {ads.map((item) => (
-                <AdItem key={item.id} ad={item} />
+                <AdItem key={item.id} ad={item} onDelete={handleDelete}/>
               ))}
             </div>
           )}
         </section>
       </div>
+      {successMessage && (
+        <div
+          className="
+            fixed top-4 left-1/2 -translate-x-1/2
+            bg-emerald-500 text-white 
+            px-4 py-2 rounded-xl shadow-lg 
+            animate-slide-in
+          "
+        >
+          {successMessage}
+        </div>
+      )}
     </div>
   );
 }
@@ -119,18 +141,44 @@ function MapPin({ x, y, label }) {
   );
 }
 
-/* ====== POJEDYNCZE OGŁOSZENIE ====== */
-function AdItem({ ad }) {
+function AdItem({ ad, onDelete }) {
+  const navigate = useNavigate();
+  
+  const handleDeleteClick = async () => {
+      try {
+        await onDelete(ad.id);
+      } catch (e) {
+        console.log(e);
+      }
+    };
+  
   return (
     <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4">
       <div className="flex items-center justify-between mb-2">
         <h3 className="font-semibold text-sm">{ad.title}</h3>
 
         <div className="flex gap-2">
-          <button className="p-2 rounded-xl bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 transition">
-            <FiEdit2 className="text-xs" />
+          <button
+            onClick={() => navigate(`/notice/${ad.id}`)}
+            className="
+              inline-flex items-center gap-2
+              px-4 py-2
+              rounded-xl
+              bg-accentBlue/10 text-accentBlue
+              dark:bg-accentBlue/20 dark:text-accentBlue
+              hover:bg-accentBlue/20 dark:hover:bg-accentBlue/30
+              text-sm font-medium
+              shadow-sm hover:shadow-md
+              transition-all
+            "
+          >
+            Zobacz szczegóły
+            <FiArrowLeft className="rotate-180 text-[14px]" />
           </button>
-          <button className="p-2 rounded-xl bg-red-200/20 dark:bg-red-800/30 hover:bg-red-300/30 dark:hover:bg-red-700/30 transition">
+          <button 
+            className="p-2 rounded-xl bg-red-200/20 dark:bg-red-800/30 hover:bg-red-300/30 dark:hover:bg-red-700/30 transition"
+            onClick={() => handleDeleteClick()}
+          >
             <FiTrash2 className="text-xs text-red-500" />
           </button>
         </div>
@@ -148,11 +196,6 @@ function AdItem({ ad }) {
       <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 mt-1">
         <FiClock />
         <span>{ad.date}</span>
-      </div>
-
-      <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-        <FiUsers />
-        <span>{ad.people_needed} osób potrzebnych</span>
       </div>
     </div>
   );
