@@ -99,7 +99,7 @@ class VolunteerNoticeController extends Controller
 
         $invitations = $user->invitations()
             ->with(['notice.users'])
-            ->withCount('notice.users')
+            ->withCount(['notice.users'])
             ->get();
 
         return response()->json([
