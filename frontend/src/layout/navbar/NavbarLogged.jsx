@@ -28,7 +28,6 @@ export default function NavbarLogged() {
     <header className="border-b border-slate-200/70 dark:border-slate-800/80 bg-white/80 dark:bg-slate-950/80 backdrop-blur">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
 
-        {/* LOGO */}
         <div className="flex items-center gap-2 cursor-pointer" 
           onClick={() => {
             if (!user) {
