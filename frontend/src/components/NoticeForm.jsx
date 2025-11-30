@@ -32,6 +32,8 @@ async function createNotice(notice) {
     formData.append("date", notice.date);
     formData.append("description", notice.description);
     formData.append("location", notice.location);
+    formData.append("latitude", notice.latitude);
+    formData.append("longitude", notice.longitude);
     if (notice.max_people !== null && notice.max_people !== undefined) {
       formData.append("max_people", String(notice.max_people));
     }
@@ -39,7 +41,7 @@ async function createNotice(notice) {
     if (notice.imageFile) {
       formData.append("image", notice.imageFile);
     }
-
+    
     const res = await axios.post("/notices", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -117,12 +119,17 @@ export default function NoticeForm({ onNoticeCreated }) {
     setApiError("");
     setApiSuccess("");
     setIsSubmitting(true);
+    
+    const locationPayload = locationCoords ?
+      `${locationCoords.lat} ${locationCoords.lng}` :
+      "Nieznana lokalizacja";
 
     const noticePayload = {
       title,
       category,
       date,
       description,
+      location: locationPayload,
       latitude: locationCoords.lat,
       longitude: locationCoords.lng,
       imageFile: imageFile|| null,

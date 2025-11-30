@@ -51,6 +51,8 @@ class NoticeController extends Controller
             'category' => $fields['category'],
             'date' => $fields['date'],
             'description' => $fields['description'],
+            'latitude' => $fields['latitude'],
+            'longitude' => $fields['longitude'],
             'location' => $fields['location'],
             'image_path' => $fields['image_path'] ?? null,
             'organization_id' => $user->organizations()->first()->id,

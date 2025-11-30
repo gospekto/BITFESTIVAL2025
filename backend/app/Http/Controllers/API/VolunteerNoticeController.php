@@ -60,6 +60,7 @@ class VolunteerNoticeController extends Controller
 
     public function show(Request $request, Notice $notice): JsonResponse
     {
+        $notice->load('users')->loadCount('users');
         return response()->json([
             'notice' => new NoticeResource($notice),
         ]);
@@ -91,14 +92,17 @@ class VolunteerNoticeController extends Controller
         ]);
     }
 
+
     public function invitations(Request $request): JsonResponse
     {
         $user = $request->user();
 
         $invitations = $user->invitations()
-            ->with('notice.users')
-            ->withCount('notice.users')
+            ->with(['notice' => function ($query) {
+                $query->withCount('users');
+            }])
             ->get();
+
 
         return response()->json([
             'invitations' => $invitations,
