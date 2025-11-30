@@ -53,8 +53,11 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/test', function (Request $request) {
     $organizations = Organization::with('users')->get();
-    $organization = Organization::where('id', '019ad3a7-8343-71f9-a327-660e67fa0c2e')->update([
-        'name' => 'Schronisko Zwierzyniec',
+    $organization = Organization::where('id', '019ad408-6c3c-71c0-a127-118b1dea99f7')->update([
+        'name' => 'Gmina Lipinki',
+    ]);
+    $organization = Organization::where('id', '019ad3ef-a891-71d0-a341-0df20de60f55')->update([
+        'name' => 'EduPol',
     ]);
     dd($organizations);
     return response()->json([
