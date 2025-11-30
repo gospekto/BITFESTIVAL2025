@@ -8,7 +8,9 @@ export default function NavbarLogged() {
   const navigate = useNavigate();
 
   const [openMenu, setOpenMenu] = useState(false);
+  const [openNotifications, setOpenNotifications] = useState(false);
   const menuRef = useRef();
+  const notificationsRef = useRef();
 
   const handleLogout = async () => {
     setOpenMenu(false);
@@ -17,11 +19,12 @@ export default function NavbarLogged() {
   };
 
   useEffect(() => {
-    const handle = (e) => {
+    const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) setOpenMenu(false);
+      if (notificationsRef.current && !notificationsRef.current.contains(e.target)) setOpenNotifications(false);
     };
-    document.addEventListener("click", handle);
-    return () => document.removeEventListener("click", handle);
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
   return (
@@ -30,13 +33,9 @@ export default function NavbarLogged() {
 
         <div className="flex items-center gap-2 cursor-pointer" 
           onClick={() => {
-            if (!user) {
-              navigate("/");
-            } else if (user.role === "organizer") {
-              navigate("/organization-dashboard");
-            } else {
-              navigate("/dashboard");
-            }
+            if (!user) navigate("/");
+            else if (user.role === "organizer") navigate("/organization-dashboard");
+            else navigate("/dashboard");
           }}> 
           <div className="h-8 w-8 rounded-2xl bg-gradient-to-tr from-accentBlue via-accentGreen to-accentOrange flex items-center justify-center text-white font-semibold text-base">
             H
@@ -62,10 +61,23 @@ export default function NavbarLogged() {
         <div className="flex items-center gap-3">
 
           {/* Powiadomienia */}
-          <button className="relative inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-900 text-slate-500 hover:text-slate-900 dark:hover:text-white transition">
-            <FiBell className="text-sm" />
-            <span className="absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full bg-accentOrange" />
-          </button>
+          <div className="relative" ref={notificationsRef}>
+            <button
+              onClick={() => setOpenNotifications((s) => !s)}
+              className="relative inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-900 text-slate-500 hover:text-slate-900 dark:hover:text-white transition"
+            >
+              <FiBell className="text-sm" />
+              <span className="absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full bg-accentOrange" />
+            </button>
+
+            {openNotifications && (
+              <div className="absolute right-0 mt-2 w-80 rounded-xl bg-white dark:bg-slate-900 shadow-lg border border-slate-200 dark:border-slate-700 py-2 z-50">
+                <p className="px-4 py-2 text-sm text-slate-800 dark:text-slate-200">
+                  Organizacja <span className="font-semibold">Chronimy Pieski</span> zaprosiła Cię do pomocy!
+                </p>
+              </div>
+            )}
+          </div>
 
           {/* MENU USERA */}
           <div className="relative" ref={menuRef}>
@@ -92,10 +104,6 @@ export default function NavbarLogged() {
                 <button onClick={() => navigate("/profile")} className="w-full px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800">
                   Profil
                 </button>
-{/* 
-                <button onClick={() => navigate("/organization-panel")} className="w-full px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800">
-                  Panel organizacji
-                </button> */}
 
                 <button
                   onClick={handleLogout}

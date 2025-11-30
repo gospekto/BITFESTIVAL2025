@@ -17,7 +17,8 @@ export default function PaymentModal({ open, onClose, notice }) {
   if (!open) return null;
 
   const orgName = notice?.organization?.name || "partnerska organizacja";
-  const presetAmounts = [20, 50, 100, 200];
+  const presetAmounts = mode === "meal" ? [1, 2, 5] : [20, 50, 100, 200];
+  const MEAL_PRICE = 30;
 
   const headerLabel = mode === "meal" ? "Opłać posiłek" : "Wesprzyj finansowo";
 
@@ -61,13 +62,20 @@ export default function PaymentModal({ open, onClose, notice }) {
 
   const supportDescription =
     mode === "meal"
-      ? "Przekaż dowolną kwotę na posiłek dla wolontariuszy."
+      ? "Opłać wybraną liczbę posiłków dla wolontariuszy."
       : `Twoje wsparcie zostanie przekazane bezpośrednio organizacji ${orgName} na realizację tego działania.`;
 
   const successDescription =
     mode === "meal"
-      ? "Pieniądze zostały przekazane na posiłek dla wolontariuszy. Dziękujemy za wsparcie!"
+      ? `Opłacono ${amount} ${pluralMeal(amount)} dla wolontariuszy. Dziękujemy za wsparcie!`
       : `Pieniądze zostały przekazane organizacji ${orgName}. Dziękujemy za wsparcie!`;
+
+  function pluralMeal(n) {
+    const num = Number(n);
+    if (num === 1) return "posiłek";
+    if (num > 1 && num < 5) return "posiłki";
+    return "posiłków";
+  }
 
   return (
     <div
@@ -126,25 +134,18 @@ export default function PaymentModal({ open, onClose, notice }) {
           )}
 
           <p className="text-xs font-medium text-slate-700 dark:text-slate-200">
-            Wybierz kwotę wsparcia
+            {mode === "meal" ? "Wybierz ilość posiłków" : "Wybierz kwotę wsparcia"}
           </p>
 
           {isSuccess ? (
-            <>
-              <div className="text-center py-8">
-                <FiCheckCircle className="mx-auto text-accentGreen text-5xl mb-4" />
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
-                  Pieniądze zostały przekazane
-                </h3>
-                <p className="text-sm text-slate-600 dark:text-slate-400 max-w-xs mx-auto">
-                  {successDescription}
-                </p>
-              </div>
-
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                {supportDescription}
+            <div className="text-center py-8">
+              <FiCheckCircle className="mx-auto text-accentGreen text-5xl mb-4" />
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+                Wsparcie zostało przekazane
+              </h3>
+              <p className="text-sm text-slate-600 dark:text-slate-400 max-w-xs mx-auto">
+                {successDescription}
               </p>
-
               <button
                 type="button"
                 onClick={handleClose}
@@ -152,7 +153,7 @@ export default function PaymentModal({ open, onClose, notice }) {
               >
                 OK
               </button>
-            </>
+            </div>
           ) : (
             <>
               <div className="grid grid-cols-4 gap-2 mb-3">
@@ -170,7 +171,9 @@ export default function PaymentModal({ open, onClose, notice }) {
                           : "border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-100 hover:bg-accentGreen/5 hover:border-accentGreen/60")
                       }
                     >
-                      {value} zł
+                      {mode === "meal"
+                        ? `${value} ${pluralMeal(value)}`
+                        : `${value} zł`}
                     </button>
                   );
                 })}
@@ -183,16 +186,22 @@ export default function PaymentModal({ open, onClose, notice }) {
                   step="1"
                   value={amount}
                   onChange={handleAmountChange}
-                  placeholder="50"
+                  placeholder={mode === "meal" ? "1" : "50"}
                   className="flex-1 bg-transparent border-0 border-b border-slate-300 dark:border-slate-700 
                              focus:border-accentBlue focus:outline-none focus:ring-0
                              pb-1 text-2xl sm:text-3xl font-semibold text-right
                              text-slate-900 dark:text-slate-50 placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
                 <span className="pb-1 text-sm font-medium text-slate-500 dark:text-slate-400">
-                  PLN
+                  {mode === "meal" ? "posiłków" : "PLN"}
                 </span>
               </div>
+
+              {mode === "meal" && (
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                  1 posiłek kosztuje 30 zł
+                </p>
+              )}
 
               <div>
                 <p className="text-xs font-medium text-slate-700 dark:text-slate-200 mb-2">
