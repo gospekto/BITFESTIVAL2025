@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('invitations', function (Blueprint $table) {
-            $table->id();
+            $table->uuid()->primary();
             $table->uuid('user_id');
             $table->uuid('notice_id');
-            $table->primary(['user_id', 'notice_id']);
+            $table->unique(['user_id', 'notice_id']);
             $table->foreign('user_id')
                 ->references('id')->on('users')
                 ->onDelete('cascade');
