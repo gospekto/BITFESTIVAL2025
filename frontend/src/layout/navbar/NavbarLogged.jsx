@@ -31,18 +31,16 @@ export default function NavbarLogged() {
     <header className="border-b border-slate-200/70 dark:border-slate-800/80 bg-white/80 dark:bg-slate-950/80 backdrop-blur">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
 
-        <div className="flex items-center gap-2 cursor-pointer" 
+        <div className="flex items-center gap-2 cursor-pointer"
           onClick={() => {
             if (!user) navigate("/");
             else if (user.role === "organizer") navigate("/organization-dashboard");
             else navigate("/dashboard");
-          }}> 
-          <div className="h-8 w-8 rounded-2xl bg-gradient-to-tr from-accentBlue via-accentGreen to-accentOrange flex items-center justify-center text-white font-semibold text-base">
-            H
-          </div>
+          }}>
+
+          <img src="/logo.webp" alt="H" className="h-8 -ml-5 bg-cover" />
 
           <div className="flex flex-col">
-            <span className="font-semibold">Helpi</span>
             <span className="text-[11px] uppercase tracking-wide text-slate-400 dark:text-slate-500">
               Panel {user.organization ? "organizacji" : "użytkownika"}
             </span>
