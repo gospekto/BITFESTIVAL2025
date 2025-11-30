@@ -22,6 +22,8 @@ class NoticeResource extends JsonResource
             'date' => $this->date->format('Y-m-d'),
             'description' => $this->description,
             'location' => $this->location,
+            'latitude' => $this->latitude,
+            'longitude' => $this->longitude,
             'max_people' => $this->max_people,
             'image_url' => $this->image_path ? Storage::url($this->image_path) : null,
             'organization' => $this->organization ? [
