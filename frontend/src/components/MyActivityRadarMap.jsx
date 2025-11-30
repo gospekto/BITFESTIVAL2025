@@ -19,19 +19,7 @@ const categoryIcons = {
   volunteer: L.icon({ ...defaultIcon, iconUrl: "/icons/volunteer.png" }),
 };
 
-const userIcon = L.icon({
-  iconUrl: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
-  iconSize: [32, 32],
-  iconAnchor: [16, 32]
-});
-
-const noticeIcon = L.icon({
-  iconUrl: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-  iconSize: [32, 32],
-  iconAnchor: [16, 32]
-});
-
-export default function ActivityRadarMap({ rangeKm = 15 }) {
+export default function MyActivityRadarMap({ rangeKm = 15 }) {
   const { user } = useAuth();
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -44,13 +32,15 @@ export default function ActivityRadarMap({ rangeKm = 15 }) {
 
       try {
         setLoading(true);
-        const res = await axios.get("/notices-in-range", {
+        console.log('test');
+        const res = await axios.get("/notices", {
           params: {
             latitude: user.latitude,
             longitude: user.longitude,
             range: rangeKm,
           },
         });
+        console.log(res.data);
         setNotices(res.data?.notices || []);
       } catch (err) {
         console.error(err);
@@ -75,7 +65,7 @@ export default function ActivityRadarMap({ rangeKm = 15 }) {
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
         {/* Twoja lokalizacja */}
-        <Marker position={center} icon={userIcon}>
+        <Marker position={center} icon={defaultIcon}>
           <Popup>Twoja lokalizacja</Popup>
         </Marker>
 
@@ -88,7 +78,7 @@ export default function ActivityRadarMap({ rangeKm = 15 }) {
           const icon = categoryIcons[notice.category] || defaultIcon;
 
           return (
-            <Marker key={notice.id} position={[lat, lng]} icon={noticeIcon}>
+            <Marker key={notice.id} position={[lat, lng]} icon={defaultIcon}>
               <Popup>
                 <div className="flex flex-col gap-1">
                   <strong>{notice.title}</strong>

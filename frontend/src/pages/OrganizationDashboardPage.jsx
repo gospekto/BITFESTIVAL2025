@@ -8,6 +8,7 @@ import {
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../axios";
+import MyActivityRadarMap from "../components/MyActivityRadarMap";
 
 export default function OrganizationDashboardPage() {
   const navigate = useNavigate();
@@ -65,13 +66,7 @@ export default function OrganizationDashboardPage() {
             </div>
           </div>
 
-          <div className="relative rounded-2xl bg-gradient-to-tr from-slate-900 via-slate-800 to-slate-900 h-72 overflow-hidden">
-            <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_10%_20%,#38bdf8_0,transparent_50%),radial-gradient(circle_at_80%_0,#22c55e_0,transparent_55%),radial-gradient(circle_at_50%_90%,#f97316_0,transparent_55%)]" />
-
-            <MapPin x="45%" y="50%" label="Akcja: Zbiórka żywności" />
-            <MapPin x="70%" y="30%" label="Akcja: Warsztaty" />
-            <MapPin x="25%" y="65%" label="Miejsce potrzeb" />
-          </div>
+            <MyActivityRadarMap rangeKm={15}/>
         </section>
 
         {/* ====== OGŁOSZENIA + PRZYCISK ====== */}
