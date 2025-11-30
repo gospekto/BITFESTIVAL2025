@@ -27,7 +27,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::middleware('role:volunteer')->group(function () {
         Route::get('/my-notices', [VolunteerNoticeController::class, 'index']);
-        Route::get('/notices/{notice}', [VolunteerNoticeController::class, 'show']);
         Route::post('/notices/{notice}/join', [VolunteerNoticeController::class, 'join']);
         Route::post('/notices/{notice}/leave', [VolunteerNoticeController::class, 'leave']);
         Route::get('/notices-in-range', [VolunteerNoticeController::class, 'noticesInRange']);
@@ -43,6 +42,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/organization/{organization}/verify', [AdminOrganizationController::class, 'verifyOrganization']);
     });
 
+    Route::get('/notices/{notice}', [VolunteerNoticeController::class, 'show']);
     Route::get('/all-notices', [VolunteerNoticeController::class, 'allNotices']);
 });
 
