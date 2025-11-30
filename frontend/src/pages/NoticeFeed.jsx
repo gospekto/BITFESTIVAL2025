@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import NoticeCard from "../components/NoticeCard";
-import { FiArrowLeft } from "react-icons/fi";
+import { FiArrowLeft, FiPlus } from "react-icons/fi";
 import api from "../axios";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function NoticesFeed() {
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchNotices = async () => {
@@ -42,7 +44,15 @@ export default function NoticesFeed() {
       </button>
 
       <h1 className="text-center w-full text-2xl font-bold">Ogłoszenia</h1>
-
+      {user.role === "organizer" && 
+        <button
+          onClick={() => navigate("/new-ad")}
+          className="inline-flex items-center gap-2 bg-accentBlue text-white px-4 py-2 rounded-2xl text-sm font-medium shadow-soft hover:bg-accentBlue/90 transition"
+        >
+          <FiPlus className="text-sm" />
+          Dodaj ogłoszenie
+        </button>
+      }
       {loading && (
         <p className="text-center text-slate-500">Ładowanie ogłoszeń...</p>
       )}
