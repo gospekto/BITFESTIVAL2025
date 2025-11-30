@@ -85,12 +85,14 @@ export default function AdminPage() {
         />
       </div>
       {successMessage && (
-        <div className="
-          fixed top-4 right-1/2
-          bg-emerald-500 text-white 
-          px-4 py-2 rounded-xl shadow-lg 
-          animate-slide-in
-        ">
+        <div
+          className="
+            fixed top-4 left-1/2 -translate-x-1/2
+            bg-emerald-500 text-white 
+            px-4 py-2 rounded-xl shadow-lg 
+            animate-slide-in
+          "
+        >
           {successMessage}
         </div>
       )}
