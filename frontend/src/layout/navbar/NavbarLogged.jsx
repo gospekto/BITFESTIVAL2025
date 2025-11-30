@@ -38,7 +38,7 @@ export default function NavbarLogged() {
             else navigate("/dashboard");
           }}>
 
-          <img src="/logo.webp" alt="H" className="h-8 -ml-5 bg-cover" />
+          <img src="/logo.webp" alt="H" className="h-8 -ml-5 dark:filter dark:hue-rotate-[-40deg]" />
 
           <div className="flex flex-col">
             <span className="text-[11px] uppercase tracking-wide text-slate-400 dark:text-slate-500">
